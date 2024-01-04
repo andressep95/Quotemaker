@@ -8,7 +8,7 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">QouteMaker</h3>
+  <h3 align="center">QuoteMaker</h3>
 
   <p align="center">
     An awesome tool for get fast quote without errors
