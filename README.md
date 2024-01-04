@@ -26,51 +26,46 @@
 
 
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+## Tabla de Contenidos
 
+- [Tabla de Contenidos](#tabla-de-contenidos)
+- [Introducción](#introducción)
+- [Funcionalidades](#funcionalidades)
+  - [Plan de Trabajo](#plan-de-trabajo)
+- [Empezando](#empezando)
+- [Patrocinadores](#patrocinadores)
+- [Preguntas Frecuentes](#preguntas-frecuentes)
+- [Estrellas a lo Largo del Tiempo](#estrellas-a-lo-largo-del-tiempo)
+- [Colaboradores](#colaboradores)
+- [Licencia](#licencia)
+- [Inspiración](#inspiración)
 
+## Introducción
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+El método tradicional para proveer una interfaz web en programas hechos con Go
+es a través del servidor web incorporado. Wails ofrece un enfoque diferente al
+permitir combinar el código hecho en Go con un frontend web en un solo archivo
+binario. Las herramientas que proporcionamos facilitan este trabajo para ti, al
+crear, compilar y empaquetar tu proyecto. ¡Lo único que debes hacer es ponerte
+creativo!
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+## Funcionalidades
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
-
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
-
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-Use the `BLANK_README.md` to get started.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- Utiliza Go estándar para el backend
+- Utiliza cualquier tecnología frontend con la que ya estés familiarizado para
+  construir tu interfaz de usuario
+- Crea rápidamente interfaces de usuario enriquecidas para tus programas en Go
+  utilizando plantillas predefinidas
+- Invoca fácilmente métodos de Go desde Javascript
+- Definiciones de Typescript generadas automáticamente para tus structs y
+  métodos de Go
+- Diálogos y menús nativos
+- Soporte nativo de modo oscuro / claro
+- Soporte de translucidez y efectos de ventana esmerilada
+- Sistema de eventos unificado entre Go y Javascript
+- Herramienta CLI potente para generar y construir tus proyectos rápidamente
+- Multiplataforma
+- Usa motores de renderizado nativos - ¡_sin navegador integrado_!
 
 
 
