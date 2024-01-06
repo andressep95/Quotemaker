@@ -45,49 +45,51 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
 ## Arquitectura Hexagonal
 
 QuoteMaker/
-┣ .github/
-┣ assets/
-┃ ┗ images/
-┃ ┗ QuoteMaker_Logo.png
-┣ cmd/
-┃ ┗ main.go
-┣ domain/ # Lógica de negocio y entidades
-┃ ┣ category.go
-┃ ┣ customer.go
-┃ ┣ delivery.go
-┃ ┣ product.go
-┃ ┗ quotation.go
-┣ application/ # Casos de uso y lógica de aplicación
-┃ ┗ productService.go
-┣ ports/ # Interfaces de los puertos
-┃ ┣ categoryRepository.go
-┃ ┣ customerRepository.go
-┃ ┣ deliveryRepository.go
-┃ ┣ productRepository.go
-┃ ┗ quotationRepository.go
-┣ adapters/ # Implementaciones de los adaptadores
-┃ ┣ api/ # Adaptadores para la API (REST, gRPC)
-┃ ┃ ┗ models/ # Modelos utilizados por la API
-┃ ┃ ┗ productModel.go
-┃ ┗ repository/ # Adaptadores para la persistencia de datos
-┃ ┗ sqlProductRepository.go
-┣ infrastructure/ # Configuración e implementación de infraestructura
-┃ ┣ db/
-┃ ┃ ┗ db.go
-┃ ┣ grpc/
-┃ ┗ http/
-┣ migrations/
-┃ ┣ 000001_init_schema.down.sql
-┃ ┗ 000001_init_schema.up.sql
-┣ config/
-┃ ┣ config.go
-┃ ┗ config.yaml
-┣ .env
-┣ LICENSE
-┣ Makefile
-┣ README.md
-┣ go.mod
-┗ go.sum
+├── .github/
+├── assets/
+│ └── images/
+│ └── QuoteMaker_Logo.png
+├── cmd/
+│ └── main.go
+├── domain/ # Lógica de negocio y entidades
+│ ├── category.go
+│ ├── customer.go
+│ ├── delivery.go
+│ ├── product.go
+│ └── quotation.go
+├── application/ # Casos de uso y lógica de aplicación
+│ └── productService.go
+├── ports/ # Interfaces de los puertos
+│ ├── categoryRepository.go
+│ ├── customerRepository.go
+│ ├── deliveryRepository.go
+│ ├── productRepository.go
+│ └── quotationRepository.go
+├── adapters/ # Implementaciones de los adaptadores
+│ ├── api/ # Adaptadores para la API (REST, gRPC)
+│ │ └── models/ # Modelos utilizados por la API
+│ │ └── productModel.go
+│ └── repository/ # Adaptadores para la persistencia de datos
+│ └── sqlProductRepository.go
+├── infrastructure/ # Configuración e implementación de infraestructura
+│ ├── db/
+│ │ └── db.go
+│ ├── grpc/
+│ └── http/
+├── migrations/
+│ ├── 000001_init_schema.down.sql
+│ └── 000001_init_schema.up.sql
+├── config/
+│ ├── config.go
+│ └── config.yaml
+├── .env
+├── LICENSE
+├── Makefile
+├── README.md
+├── go.mod
+└── go.sum
+
+
 
 
 ## Funcionalidades
