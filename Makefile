@@ -13,4 +13,5 @@ migrateup:
 migratedown:
 	migrate -path migrations -database "postgresql://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose down	
 
+
 .PHONY: postgres createdb dropdb migrateup migratedown

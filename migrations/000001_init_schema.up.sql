@@ -3,7 +3,7 @@ CREATE TABLE seller (
   name VARCHAR
 );
 
-CREATE TABLE client (
+CREATE TABLE customer (
   id INT PRIMARY KEY,
   name VARCHAR,
   rut VARCHAR, 
@@ -38,11 +38,11 @@ CREATE TABLE delivery (
 CREATE TABLE quotation (
   id INT PRIMARY KEY,
   seller_id INT,
-  client_id INT,
+  customer_id INT,
   date TIMESTAMP DEFAULT (NOW()),
   total_price INT,
   FOREIGN KEY (seller_id) REFERENCES seller(id),
-  FOREIGN KEY (client_id) REFERENCES client(id)
+  FOREIGN KEY (customer_id) REFERENCES customer(id)
 );
 
 CREATE TABLE quote_product (
