@@ -42,12 +42,55 @@
 
 ## Introducción
 
-El método tradicional para proveer una interfaz web en programas hechos con Go
-es a través del servidor web incorporado. Wails ofrece un enfoque diferente al
-permitir combinar el código hecho en Go con un frontend web en un solo archivo
-binario. Las herramientas que proporcionamos facilitan este trabajo para ti, al
-crear, compilar y empaquetar tu proyecto. ¡Lo único que debes hacer es ponerte
-creativo!
+Facilita la creacion de cotizaciones al proveer de los campos necesarios almacenados en la base de datos, minimizando el tipeo manual y los posibles errores que podrian ocurrir al hacerlo de la forma convencional.
+
+## Arquitectura Hexagonal
+
+QuoteMaker/
+┣ .github/
+┣ assets/
+┃ ┗ images/
+┃   ┗ QuoteMaker_Logo.png
+┣ cmd/
+┃ ┗ main.go
+┣ domain/                                 # Lógica de negocio y entidades
+┃ ┣ category.go
+┃ ┣ customer.go
+┃ ┣ delivery.go
+┃ ┣ product.go
+┃ ┗ quotation.go
+┣ application/                             # Casos de uso y lógica de aplicación
+┃ ┗ productService.go
+┣ ports/                                   # Interfaces de los puertos
+┃ ┣ categoryRepository.go
+┃ ┣ customerRepository.go
+┃ ┣ deliveryRepository.go
+┃ ┣ productRepository.go
+┃ ┗ quotationRepository.go
+┣ adapters/                                # Implementaciones de los adaptadores
+┃ ┣ api/                                   # Adaptadores para la API (REST, gRPC)
+┃ ┃ ┗ models/                              # Modelos utilizados por la API
+┃ ┃   ┗ productModel.go
+┃ ┗ repository/                            # Adaptadores para la persistencia de datos
+┃   ┗ sqlProductRepository.go
+┣ infrastructure/                          # Configuración e implementación de infraestructura
+┃ ┣ db/
+┃ ┃ ┗ db.go
+┃ ┣ grpc/
+┃ ┗ http/
+┣ migrations/
+┃ ┣ 000001_init_schema.down.sql
+┃ ┗ 000001_init_schema.up.sql
+┣ config/
+┃ ┣ config.go
+┃ ┗ config.yaml
+┣ .env
+┣ LICENSE
+┣ Makefile
+┣ README.md
+┣ go.mod
+┗ go.sum
+
 
 ## Funcionalidades
 
