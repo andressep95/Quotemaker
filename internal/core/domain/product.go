@@ -6,6 +6,6 @@ type Product struct {
 	CategoryID int32   `db:"category_id"`
 	Length     float32 `db:"length"`
 	Price      float64 `db:"price"`
-	Weight     float32 `db:"weight"`
+	Weight     float64 `db:"weight"`
 	Code       string  `db:"code"`
 }

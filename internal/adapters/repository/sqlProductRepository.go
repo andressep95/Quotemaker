@@ -14,7 +14,7 @@ type sqlProductRepository struct {
 
 const saveProductQuery = `
 INSERT INTO product (name, category, length, price, weight, code)
-VALUES (?, ?, ?, ?, ?, ?);
+VALUES ($1, $2, $3, $4, $5, $6);
 `
 
 // saveProduct implements ports.ProductRepo.
@@ -22,7 +22,6 @@ func (r *sqlProductRepository) SaveProduct(ctx context.Context, args domain.Prod
 	row := r.db.QueryRowContext(ctx, saveProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code)
 	var i domain.Product
 
-	//_, err := r.db.ExecContext(ctx, saveProductQuery, name, category, length, price, weight, code)
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
