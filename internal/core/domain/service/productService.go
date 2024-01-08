@@ -1,9 +1,9 @@
-package application
+package service
 
 import (
 	"context"
 
-	"github.com/Andressep/QuoteMaker/internal/core/domain"
+	domain "github.com/Andressep/QuoteMaker/internal/core/domain/entity"
 	"github.com/Andressep/QuoteMaker/internal/core/ports"
 )
 

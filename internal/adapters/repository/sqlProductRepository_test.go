@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/Andressep/QuoteMaker/internal/config"
-	"github.com/Andressep/QuoteMaker/internal/core/domain"
+	domain "github.com/Andressep/QuoteMaker/internal/core/domain/entity"
 	"github.com/Andressep/QuoteMaker/internal/infraestructure/db"
 	"github.com/Andressep/QuoteMaker/internal/util"
 	"github.com/jmoiron/sqlx"
@@ -45,14 +45,6 @@ func createRandomProduct(t *testing.T) domain.Product {
 		Weight:     weight,
 		Code:       code,
 	}
-
-	// Verificar que los campos generados son los esperados
-	require.Equal(t, name, product.Name)
-	require.Equal(t, categoryID, product.CategoryID)
-	require.Equal(t, length, product.Length)
-	require.Equal(t, price, product.Price)
-	require.Equal(t, weight, product.Weight)
-	require.Equal(t, code, product.Code)
 
 	return product
 }

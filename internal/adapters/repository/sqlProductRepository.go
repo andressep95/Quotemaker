@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/Andressep/QuoteMaker/internal/core/domain"
+	domain "github.com/Andressep/QuoteMaker/internal/core/domain/entity"
 	"github.com/Andressep/QuoteMaker/internal/core/ports"
 	"github.com/jmoiron/sqlx"
 )
