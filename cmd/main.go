@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Andressep/QuoteMaker/internal/config"
-	"github.com/Andressep/QuoteMaker/internal/infraestructure/db"
-	"github.com/jmoiron/sqlx"
+	"github.com/Andressep/QuoteMaker/internal/infrastructure/db"
 	"go.uber.org/fx"
 )
 
@@ -18,15 +16,7 @@ func main() {
 			config.New,
 			db.New,
 		),
-		fx.Invoke(
-			func(db *sqlx.DB) {
-				_, err := db.Query("SELECT * FROM customer")
-				if err != nil {
-					fmt.Println("all right")
-					panic(err)
-				}
-			},
-		),
+		fx.Invoke(),
 	)
 
 	app.Run()

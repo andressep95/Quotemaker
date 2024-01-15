@@ -1,37 +1,37 @@
 CREATE TABLE seller (
   id SERIAL PRIMARY KEY,
-  name VARCHAR
+  name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE customer (
   id SERIAL PRIMARY KEY,
-  name VARCHAR,
-  rut VARCHAR, 
-  address VARCHAR,
-  phone VARCHAR,
-  email VARCHAR
+  name VARCHAR(255) NOT NULL,
+  rut VARCHAR(255), 
+  address VARCHAR(255),
+  phone VARCHAR(255),
+  email VARCHAR(255)
 );
 
 CREATE TABLE category (
-  id SERIAL PRIMARY KEY AUTO INCREMENTAL,
-  category_name VARCHAR
+  id SERIAL PRIMARY KEY,
+  category_name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE product (
   id SERIAL PRIMARY KEY,
-  name VARCHAR,
+  name VARCHAR(255) NOT NULL,
   category_id INT,
-  length VARCHAR, 
+  length INT, 
   price INT,
-  weight INT,
-  code VARCHAR
+  weight FLOAT,
+  code VARCHAR(255),
   FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE delivery (
   id SERIAL PRIMARY KEY,
-  address VARCHAR,
-  weight INT,
+  address VARCHAR(255),
+  weight FLOAT,
   cost INT
 );
 
@@ -39,7 +39,7 @@ CREATE TABLE quotation (
   id SERIAL PRIMARY KEY,
   seller_id INT,
   customer_id INT,
-  date TIMESTAMP DEFAULT (NOW()),
+  created_at TIMESTAMP DEFAULT NOW(),
   total_price INT,
   FOREIGN KEY (seller_id) REFERENCES seller(id),
   FOREIGN KEY (customer_id) REFERENCES customer(id)
@@ -55,5 +55,3 @@ CREATE TABLE quote_product (
   FOREIGN KEY (product_id) REFERENCES product(id),
   FOREIGN KEY (delivery_id) REFERENCES delivery(id)
 );
-
-

@@ -2,79 +2,101 @@ package repository
 
 import (
 	"context"
+	"math/rand"
 	"testing"
+	"time"
 
-	"github.com/Andressep/QuoteMaker/internal/config"
 	domain "github.com/Andressep/QuoteMaker/internal/core/domain/entity"
-	"github.com/Andressep/QuoteMaker/internal/infraestructure/db"
 	"github.com/Andressep/QuoteMaker/internal/util"
-	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 )
 
-func setupTestDB(t *testing.T) *sqlx.DB {
-	testConfig := &config.Config{
-		DB: config.DatabaseConfig{
-			User:     "root",
-			Password: "secret",
-			Host:     "localhost", // O la dirección IP de Docker si estás en un entorno diferente
-			Port:     5432,
-			Name:     "quote_maker", // El nombre de la base de datos; asegúrate de que esto sea correcto
-		},
-	}
-
-	database, err := db.New(context.Background(), testConfig)
-	require.NoError(t, err)
-
-	return database
-}
-
-func createRandomProduct(t *testing.T) domain.Product {
-	name := util.RandomString(10)
-	categoryID := int32(util.RandomInt(1, 10))
-	length := float32(util.RandomInt(5, 30))
-	price := float64(util.RandomInt(1000, 10000))
-	weight := float64(util.RandomInt(5, 12))
-	code := util.RandomString(8)
+func CreateRandomProduct(t *testing.T) domain.Product {
+	rand.Seed(time.Now().UnixNano())
 
 	product := domain.Product{
-		Name:       name,
-		CategoryID: categoryID,
-		Length:     length,
-		Price:      price,
-		Weight:     weight,
-		Code:       code,
+		Name:       "Product-" + util.RandomString(8),
+		Price:      util.RandomInt(100, 500),
+		CategoryID: 1, // Siempre usa la categoría con ID 1
+		Length:     util.RandomInt(1, 6),
+		Weight:     util.RandomFloat(10, 15),
+		Code:       "Code-" + util.RandomString(8),
 	}
+
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+
+	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES (1, 'Test Category') ON CONFLICT (id) DO NOTHING")
+
+	repo := NewProductRepository(db)
+
+	savedProduct, err := repo.SaveProduct(ctx, product)
+
+	require.NoError(t, err)
+	require.NotEqual(t, 0, savedProduct.ID) // Asegúrate de que se generó un ID
+	require.NotEmpty(t, savedProduct)
+	require.Equal(t, product.Code, savedProduct.Code)
+	require.Equal(t, product.Name, savedProduct.Name)
+	require.Equal(t, product.Price, savedProduct.Price)
+	require.NotZero(t, savedProduct.ID)
 
 	return product
 }
 
 func TestSaveProduct(t *testing.T) {
-	db := setupTestDB(t)
-	defer db.Close() // Asegúrate de cerrar la conexión de la base de datos al finalizar la prueba
+	CreateRandomProduct(t)
+}
 
-	repo := New(db)
-
+func TestGetProductByID(t *testing.T) {
+	db := util.SetupTestDB(t)
 	ctx := context.Background()
-	product := domain.Product{
-		// Inicializa tu producto con datos de prueba
-		Name:       "Test Product",
-		CategoryID: 1,
-		Length:     10.0,
-		Price:      100.0,
-		Weight:     5.0,
-		Code:       "TEST123",
+
+	repo := NewProductRepository(db)
+
+	newProduct := CreateRandomProduct(t)
+	//newProduct.CategoryID = 1
+
+	savedProduct, err := repo.SaveProduct(ctx, newProduct)
+	require.NoError(t, err)
+
+	fetchedProduct, err := repo.GetProductByID(ctx, int(savedProduct.ID))
+	require.NoError(t, err)
+	require.NotNil(t, fetchedProduct)
+	// Realizar más aserciones según sea necesario, por ejemplo:
+	require.Equal(t, savedProduct.ID, fetchedProduct.ID)
+	require.Equal(t, savedProduct.Name, fetchedProduct.Name)
+
+}
+
+func TestDeleteProduct(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewProductRepository(db)
+	newProduct := CreateRandomProduct(t)
+
+	// delete product
+	err := repo.DeleteProduct(ctx, int(newProduct.ID))
+	require.NoError(t, err)
+
+	//verify
+	_, err = repo.GetProductByID(ctx, int(newProduct.ID))
+	require.Error(t, err)
+}
+
+func TestListProducts(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewProductRepository(db)
+
+	for i := 0; i < 5; i++ {
+		CreateRandomProduct(t)
 	}
 
-	savedProduct, err := repo.SaveProduct(ctx, product)
+	products, err := repo.ListProducts(ctx, 5, 0)
 	require.NoError(t, err)
-	require.NotEmpty(t, savedProduct)
 
-	require.Equal(t, product.Name, savedProduct.Name)
-	require.Equal(t, product.CategoryID, savedProduct.CategoryID)
-	require.Equal(t, product.Length, savedProduct.Length)
-	require.Equal(t, product.Price, savedProduct.Price)
-	require.Equal(t, product.Weight, savedProduct.Weight)
-	require.Equal(t, product.Code, savedProduct.Code)
-
+	for _, product := range products {
+		require.NotEmpty(t, product)
+		require.Len(t, products, 5)
+	}
 }

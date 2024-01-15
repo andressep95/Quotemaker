@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-const alphabet = "abcdefghijklmnñopqrstuvwxyz"
+const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
 // Generate a ramdon number beetwen min and max values
-func RandomInt(min, max int64) int64 {
-	return min + rand.Int63n(max-min+1)
+func RandomInt(min, max int) int {
+	return min + rand.Intn(50)
 }
 
 // RandomString generates a random string of length n
@@ -23,4 +23,8 @@ func RandomString(n int) string {
 	}
 
 	return sb.String()
+}
+
+func RandomFloat(min, max float64) float64 {
+	return min + rand.Float64()*(max-min)
 }

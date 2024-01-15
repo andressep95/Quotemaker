@@ -1,8 +1,8 @@
 package domain
 
 type Delivery struct {
-	ID      int32  `db:"id"`
-	Address string `db:"address"`
-	Weight  string `db:"weight"`
-	Cost    string `db:"cost"`
+	ID      int     `db:"id"`
+	Address string  `db:"address"`
+	Weight  float64 `db:"weight"`
+	Cost    int     `db:"cost"`
 }

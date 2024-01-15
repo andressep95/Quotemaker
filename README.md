@@ -81,7 +81,7 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┃ ┣ deliveryRepository.go
  ┃ ┃ ┃ ┣ productRepository.go
  ┃ ┃ ┃ ┗ quotationRepository.go
- ┃ ┣ infraestructure
+ ┃ ┣ infrastructure
  ┃ ┃ ┣ db
  ┃ ┃ ┃ ┗ db.go
  ┃ ┃ ┣ grpc

@@ -1,7 +1,7 @@
 package domain
 
 type Customer struct {
-	ID      int32  `db:"id"`
+	ID      int    `db:"id"`
 	Name    string `db:"name"`
 	Rut     string `db:"rut"`
 	Address string `db:"address"`

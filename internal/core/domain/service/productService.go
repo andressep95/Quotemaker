@@ -20,7 +20,7 @@ func (s *ProductService) CreateProduct(ctx context.Context, p domain.Product) (d
 	return s.repo.SaveProduct(ctx, p)
 }
 
-func (s *ProductService) GetProduct(ctx context.Context, id int) (*domain.Product, error) {
+func (s *ProductService) GetProduct(ctx context.Context, id int) (domain.Product, error) {
 	// Lógica para obtener un producto
 	return s.repo.GetProductByID(ctx, id)
 }
