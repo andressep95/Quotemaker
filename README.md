@@ -55,11 +55,17 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┣ adapters
  ┃ ┃ ┣ api
  ┃ ┃ ┃ ┗ models
- ┃ ┃ ┃ ┃ ┗ productModel.go
+ ┃ ┃ ┃ ┃ ┣ customer
+ ┃ ┃ ┃ ┃ ┗ product
+ ┃ ┃ ┃ ┃ ┃ ┣ productRequest.go
+ ┃ ┃ ┃ ┃ ┃ ┗ productResponse.go
  ┃ ┃ ┗ repository
+ ┃ ┃ ┃ ┣ sqlCustomerRepository.go
+ ┃ ┃ ┃ ┣ sqlCustomerRepository_test.go
  ┃ ┃ ┃ ┣ sqlProductRepository.go
  ┃ ┃ ┃ ┗ sqlProductRepository_test.go
  ┃ ┣ application
+ ┃ ┃ ┣ mappers
  ┃ ┃ ┗ usecases
  ┃ ┃ ┃ ┗ productUseCases.go
  ┃ ┣ config
@@ -72,7 +78,9 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┃ ┃ ┣ customer.go
  ┃ ┃ ┃ ┃ ┣ delivery.go
  ┃ ┃ ┃ ┃ ┣ product.go
- ┃ ┃ ┃ ┃ ┗ quotation.go
+ ┃ ┃ ┃ ┃ ┣ quotation.go
+ ┃ ┃ ┃ ┃ ┣ quoteProduct.go
+ ┃ ┃ ┃ ┃ ┗ seller.go
  ┃ ┃ ┃ ┗ service
  ┃ ┃ ┃ ┃ ┗ productService.go
  ┃ ┃ ┗ ports
@@ -87,7 +95,8 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┣ grpc
  ┃ ┃ ┗ http
  ┃ ┗ util
- ┃ ┃ ┗ random.go
+ ┃ ┃ ┣ random.go
+ ┃ ┃ ┗ testUtils.go
  ┣ migrations
  ┃ ┣ 000001_init_schema.down.sql
  ┃ ┗ 000001_init_schema.up.sql
