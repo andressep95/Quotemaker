@@ -16,9 +16,9 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 
 	product := domain.Product{
 		Name:       "Product-" + util.RandomString(8),
-		Price:      util.RandomInt(100, 500),
+		Price:      util.RandomFloat(100, 500),
 		CategoryID: 1, // Siempre usa la categoría con ID 1
-		Length:     util.RandomInt(1, 6),
+		Length:     util.RandomFloat(1, 6),
 		Weight:     util.RandomFloat(10, 15),
 		Code:       "Code-" + util.RandomString(8),
 	}
@@ -54,12 +54,11 @@ func TestGetProductByID(t *testing.T) {
 	repo := NewProductRepository(db)
 
 	newProduct := CreateRandomProduct(t)
-	//newProduct.CategoryID = 1
 
 	savedProduct, err := repo.SaveProduct(ctx, newProduct)
 	require.NoError(t, err)
 
-	fetchedProduct, err := repo.GetProductByID(ctx, int(savedProduct.ID))
+	fetchedProduct, err := repo.GetProductByID(ctx, savedProduct.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedProduct)
 	// Realizar más aserciones según sea necesario, por ejemplo:

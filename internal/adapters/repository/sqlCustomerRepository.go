@@ -12,6 +12,23 @@ type sqlCustomerRepository struct {
 	db *sqlx.DB
 }
 
+const listCustomerQuery = `
+SELECT name, rut, address, phone, email
+FROM customer
+ORDER BY id
+LIMIT $1 OFFSET $2;
+`
+
+// listCustomers implements ports.CustomerRepository.
+func (r *sqlCustomerRepository) ListCustomers(ctx context.Context, limit int, offset int) ([]domain.Customer, error) {
+	var customers []domain.Customer
+	err := r.db.SelectContext(ctx, &customers, listCustomerQuery, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return customers, nil
+}
+
 const saveCustomerQuery = `
 INSERT INTO customer (name, rut, address, phone, email)
 VALUES ($1, $2, $3, $4, $5)
@@ -41,13 +58,30 @@ WHERE id = $1;
 `
 
 // GetCustomerByID implements ports.CustomerRepository.
-func (r *sqlCustomerRepository) GetCustomerByID(ctx context.Context, id int) (*domain.Customer, error) {
-	customer := &domain.Customer{}
-	err := r.db.GetContext(ctx, customer, getCustomerByIDQuery)
-	if err != nil {
-		return nil, err
-	}
-	return customer, nil
+func (r *sqlCustomerRepository) GetCustomerByID(ctx context.Context, id int) (domain.Customer, error) {
+	row := r.db.QueryRowContext(ctx, getCustomerByIDQuery, id)
+	var i domain.Customer
+
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Rut,
+		&i.Address,
+		&i.Phone,
+		&i.Email,
+	)
+
+	return i, err
+}
+
+const deleteCustomerQuery = `
+DELETE FROM customer
+WHERE id = $1;
+`
+
+func (r *sqlCustomerRepository) DeleteCustomer(ctx context.Context, id int) error {
+	_, err := r.db.ExecContext(ctx, deleteCustomerQuery, id)
+	return err
 }
 
 func NewCustomerRepository(db *sqlx.DB) ports.CustomerRepository {

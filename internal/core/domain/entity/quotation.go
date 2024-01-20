@@ -9,5 +9,5 @@ type Quotation struct {
 	SellerID   int       `db:"seller_id"`
 	CustomerID int       `db:"customer_id"`
 	CreatedAt  time.Time `db:"created_at"`
-	TotalPrice int       `db:"total_price"`
+	TotalPrice float64   `db:"total_price"`
 }
