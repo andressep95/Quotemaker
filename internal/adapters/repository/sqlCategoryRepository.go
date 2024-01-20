@@ -31,19 +31,50 @@ func (r *sqlCategoryRepository) SaveCategory(ctx context.Context, args domain.Ca
 
 }
 
+const getCategoryByIDQuery = `
+SELECT id, category_name
+FROM category
+WHERE id = $1;
+`
+
 // GetCategoryByID implements ports.CategoryRepository.
-func (*sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (domain.Category, error) {
-	panic("unimplemented")
+func (r *sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (domain.Category, error) {
+	row := r.db.QueryRowContext(ctx, getCategoryByIDQuery, id)
+	var i domain.Category
+
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryName,
+	)
+	return i, err
 }
+
+const listCategoryQuery = `
+SELECT category_name
+FROM category
+ORDER BY id
+LIMIT $1 OFFSET $2;
+`
 
 // ListCategorys implements ports.CategoryRepository.
-func (*sqlCategoryRepository) ListCategorys(ctx context.Context, limit int, offset int) ([]domain.Category, error) {
-	panic("unimplemented")
+func (r *sqlCategoryRepository) ListCategorys(ctx context.Context, limit int, offset int) ([]domain.Category, error) {
+	var categorys []domain.Category
+	err := r.db.SelectContext(ctx, &categorys, listCategoryQuery, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	return categorys, nil
 }
 
+const deleteCategoryQuery = `
+DELETE FROM category
+WHERE id = $1;
+`
+
 // DeleteCategory implements ports.CategoryRepository.
-func (*sqlCategoryRepository) DeleteCategory(ctx context.Context, id int) error {
-	panic("unimplemented")
+func (r *sqlCategoryRepository) DeleteCategory(ctx context.Context, id int) error {
+	_, err := r.db.ExecContext(ctx, deleteCategoryQuery, id)
+	return err
 }
 
 func NewCategoryRepository(db *sqlx.DB) ports.CategoryRepository {

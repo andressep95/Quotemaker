@@ -36,3 +36,52 @@ func CreateRandomCategory(t *testing.T) domain.Category {
 func TestSaveCategory(t *testing.T) {
 	CreateRandomCategory(t)
 }
+
+func TestGetCategoryByID(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCategoryRepository(db)
+	newCategory := CreateRandomCategory(t)
+
+	savedCategory, err := repo.SaveCategory(ctx, newCategory)
+	require.NoError(t, err)
+
+	fetchedCategory, err := repo.GetCategoryByID(ctx, savedCategory.ID)
+	require.NoError(t, err)
+	require.NotNil(t, fetchedCategory)
+	require.Equal(t, savedCategory.ID, fetchedCategory.ID)
+	require.Equal(t, savedCategory.CategoryName, fetchedCategory.CategoryName)
+}
+
+func TestListCategorys(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCategoryRepository(db)
+
+	for i := 0; i < 5; i++ {
+		CreateRandomProduct(t)
+	}
+
+	categorys, err := repo.ListCategorys(ctx, 5, 0)
+	require.NoError(t, err)
+
+	for _, category := range categorys {
+		require.NotEmpty(t, category)
+		require.Len(t, categorys, 5)
+	}
+}
+
+func TestDeleteCategory(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCategoryRepository(db)
+	newCategory := CreateRandomCategory(t)
+
+	// delete product
+	err := repo.DeleteCategory(ctx, int(newCategory.ID))
+	require.NoError(t, err)
+
+	//verify
+	_, err = repo.GetCategoryByID(ctx, int(newCategory.ID))
+	require.Error(t, err)
+}
