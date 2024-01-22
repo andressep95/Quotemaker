@@ -60,10 +60,16 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┃ ┃ ┃ ┣ productRequest.go
  ┃ ┃ ┃ ┃ ┃ ┗ productResponse.go
  ┃ ┃ ┗ repository
+ ┃ ┃ ┃ ┣ sqlCategoryRepository.go
+ ┃ ┃ ┃ ┣ sqlCategoryRepository_test.go
  ┃ ┃ ┃ ┣ sqlCustomerRepository.go
  ┃ ┃ ┃ ┣ sqlCustomerRepository_test.go
  ┃ ┃ ┃ ┣ sqlProductRepository.go
- ┃ ┃ ┃ ┗ sqlProductRepository_test.go
+ ┃ ┃ ┃ ┣ sqlProductRepository_test.go
+ ┃ ┃ ┃ ┣ sqlQuotationRepository.go
+ ┃ ┃ ┃ ┣ sqlQuotationRepository_test.go
+ ┃ ┃ ┃ ┣ sqlSellerRepository.go
+ ┃ ┃ ┃ ┗ sqlSellerRepository_test.go
  ┃ ┣ application
  ┃ ┃ ┣ mappers
  ┃ ┃ ┗ usecases
@@ -76,7 +82,6 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┃ ┣ entity
  ┃ ┃ ┃ ┃ ┣ category.go
  ┃ ┃ ┃ ┃ ┣ customer.go
- ┃ ┃ ┃ ┃ ┣ delivery.go
  ┃ ┃ ┃ ┃ ┣ product.go
  ┃ ┃ ┃ ┃ ┣ quotation.go
  ┃ ┃ ┃ ┃ ┣ quoteProduct.go
@@ -86,9 +91,9 @@ Facilita la creacion de cotizaciones al proveer de los campos necesarios almacen
  ┃ ┃ ┗ ports
  ┃ ┃ ┃ ┣ categoryRepository.go
  ┃ ┃ ┃ ┣ customerRepository.go
- ┃ ┃ ┃ ┣ deliveryRepository.go
  ┃ ┃ ┃ ┣ productRepository.go
- ┃ ┃ ┃ ┗ quotationRepository.go
+ ┃ ┃ ┃ ┣ quotationRepository.go
+ ┃ ┃ ┃ ┗ sellerRepository.go
  ┃ ┣ infrastructure
  ┃ ┃ ┣ db
  ┃ ┃ ┃ ┗ db.go
