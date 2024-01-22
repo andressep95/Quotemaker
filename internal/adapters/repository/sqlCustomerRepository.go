@@ -58,7 +58,7 @@ WHERE id = $1;
 `
 
 // GetCustomerByID implements ports.CustomerRepository.
-func (r *sqlCustomerRepository) GetCustomerByID(ctx context.Context, id int) (domain.Customer, error) {
+func (r *sqlCustomerRepository) GetCustomerByID(ctx context.Context, id int) (*domain.Customer, error) {
 	row := r.db.QueryRowContext(ctx, getCustomerByIDQuery, id)
 	var i domain.Customer
 
@@ -71,7 +71,7 @@ func (r *sqlCustomerRepository) GetCustomerByID(ctx context.Context, id int) (do
 		&i.Email,
 	)
 
-	return i, err
+	return &i, err
 }
 
 const deleteCustomerQuery = `

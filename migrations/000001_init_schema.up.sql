@@ -29,15 +29,8 @@ CREATE TABLE IF NOT EXISTS product (
     price FLOAT,
     weight FLOAT,
     code VARCHAR(255),
+    is_available BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (category_id) REFERENCES category(id)
-);
-
--- Table delivery
-CREATE TABLE IF NOT EXISTS delivery (
-    id SERIAL PRIMARY KEY,
-    address VARCHAR(255),
-    weight FLOAT,
-    cost FLOAT
 );
 
 -- Table quotation
@@ -46,7 +39,12 @@ CREATE TABLE IF NOT EXISTS quotation (
     seller_id INT,
     customer_id INT,
     created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
     total_price FLOAT,
+    is_purchased BOOLEAN DEFAULT FALSE,
+    purchased_at TIMESTAMP,  -- Fecha de compra
+    is_delivered BOOLEAN DEFAULT FALSE,
+    delivered_at TIMESTAMP,  -- Fecha de entrega
     FOREIGN KEY (seller_id) REFERENCES seller(id),
     FOREIGN KEY (customer_id) REFERENCES customer(id)
 );
@@ -57,8 +55,6 @@ CREATE TABLE IF NOT EXISTS quote_product (
     quotation_id INT,
     product_id INT,
     quantity FLOAT,
-    delivery_id INT,
     FOREIGN KEY (quotation_id) REFERENCES quotation(id),
-    FOREIGN KEY (product_id) REFERENCES product(id),
-    FOREIGN KEY (delivery_id) REFERENCES delivery(id)
+    FOREIGN KEY (product_id) REFERENCES product(id)
 );

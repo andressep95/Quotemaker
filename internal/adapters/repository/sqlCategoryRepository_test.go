@@ -30,7 +30,7 @@ func CreateRandomCategory(t *testing.T) domain.Category {
 	require.Equal(t, category.CategoryName, savedCategory.CategoryName)
 	require.NotZero(t, savedCategory.ID)
 
-	return category
+	return savedCategory
 }
 
 func TestSaveCategory(t *testing.T) {

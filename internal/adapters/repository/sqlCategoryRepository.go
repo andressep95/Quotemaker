@@ -28,7 +28,6 @@ func (r *sqlCategoryRepository) SaveCategory(ctx context.Context, args domain.Ca
 		&i.CategoryName,
 	)
 	return i, err
-
 }
 
 const getCategoryByIDQuery = `
@@ -38,7 +37,7 @@ WHERE id = $1;
 `
 
 // GetCategoryByID implements ports.CategoryRepository.
-func (r *sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (domain.Category, error) {
+func (r *sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (*domain.Category, error) {
 	row := r.db.QueryRowContext(ctx, getCategoryByIDQuery, id)
 	var i domain.Category
 
@@ -46,7 +45,7 @@ func (r *sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (do
 		&i.ID,
 		&i.CategoryName,
 	)
-	return i, err
+	return &i, err
 }
 
 const listCategoryQuery = `

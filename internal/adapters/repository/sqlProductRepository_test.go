@@ -15,12 +15,13 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 	rand.Seed(time.Now().UnixNano())
 
 	product := domain.Product{
-		Name:       "Product-" + util.RandomString(8),
-		Price:      util.RandomFloat(100, 500),
-		CategoryID: 1, // Siempre usa la categoría con ID 1
-		Length:     util.RandomFloat(1, 6),
-		Weight:     util.RandomFloat(10, 15),
-		Code:       "Code-" + util.RandomString(8),
+		Name:        "Product-" + util.RandomString(8),
+		Price:       util.RandomFloat(100, 500),
+		CategoryID:  1, // Siempre usa la categoría con ID 1
+		Length:      util.RandomFloat(1, 6),
+		Weight:      util.RandomFloat(10, 15),
+		Code:        "Code-" + util.RandomString(8),
+		IsAvailable: true,
 	}
 
 	db := util.SetupTestDB(t)
@@ -40,7 +41,7 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 	require.Equal(t, product.Price, savedProduct.Price)
 	require.NotZero(t, savedProduct.ID)
 
-	return product
+	return savedProduct
 }
 
 func TestSaveProduct(t *testing.T) {

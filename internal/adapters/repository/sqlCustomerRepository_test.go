@@ -35,7 +35,7 @@ func CreateRandomCustomer(t *testing.T) domain.Customer {
 	require.Equal(t, customer.Rut, savedCustomer.Rut)
 	require.NotZero(t, savedCustomer.ID)
 
-	return customer
+	return savedCustomer
 }
 
 func TestSaveCustomer(t *testing.T) {

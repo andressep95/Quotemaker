@@ -8,7 +8,7 @@ import (
 
 type CustomerRepository interface {
 	SaveCustomer(ctx context.Context, args domain.Customer) (domain.Customer, error)
-	GetCustomerByID(ctx context.Context, id int) (domain.Customer, error)
+	GetCustomerByID(ctx context.Context, id int) (*domain.Customer, error)
 	ListCustomers(ctx context.Context, limit, offset int) ([]domain.Customer, error)
 	DeleteCustomer(ctx context.Context, id int) error
 }
