@@ -48,6 +48,25 @@ func (r *sqlCategoryRepository) GetCategoryByID(ctx context.Context, id int) (*d
 	return &i, err
 }
 
+const getCategoryByNameQuery = `
+SELECT id, category_name
+FROM category
+WHERE category_name = $1;
+`
+
+// GetCategoryByName implements ports.CategoryRepository.
+func (r *sqlCategoryRepository) GetCategoryByName(ctx context.Context, name string) (*domain.Category, error) {
+	row := r.db.QueryRowContext(ctx, getCategoryByNameQuery, name)
+	var i domain.Category
+
+	err := row.Scan(
+		&i.ID,
+		&i.CategoryName,
+	)
+
+	return &i, err
+}
+
 const listCategoryQuery = `
 SELECT category_name
 FROM category

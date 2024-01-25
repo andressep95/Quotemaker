@@ -43,14 +43,11 @@ func TestGetSellerByID(t *testing.T) {
 	repo := NewSellerRepository(db)
 	newSeller := CreateRandomSeller(t)
 
-	savedSeller, err := repo.SaveSeller(ctx, newSeller)
-	require.NoError(t, err)
-
-	fetchedSeller, err := repo.GetSellerByID(ctx, savedSeller.ID)
+	fetchedSeller, err := repo.GetSellerByID(ctx, newSeller.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedSeller)
-	require.Equal(t, savedSeller.ID, fetchedSeller.ID)
-	require.Equal(t, savedSeller.Name, fetchedSeller.Name)
+	require.Equal(t, newSeller.ID, fetchedSeller.ID)
+	require.Equal(t, newSeller.Name, fetchedSeller.Name)
 }
 
 func TestListSellers(t *testing.T) {

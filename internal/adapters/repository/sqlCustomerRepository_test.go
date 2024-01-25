@@ -48,14 +48,11 @@ func TestGetCustomerByID(t *testing.T) {
 	repo := NewCustomerRepository(db)
 	newCustomer := CreateRandomCustomer(t)
 
-	savedCustomer, err := repo.SaveCustomer(ctx, newCustomer)
-	require.NoError(t, err)
-
-	fetchedCustomer, err := repo.GetCustomerByID(ctx, savedCustomer.ID)
+	fetchedCustomer, err := repo.GetCustomerByID(ctx, newCustomer.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedCustomer)
-	require.Equal(t, savedCustomer.ID, fetchedCustomer.ID)
-	require.Equal(t, savedCustomer.Name, fetchedCustomer.Name)
+	require.Equal(t, newCustomer.ID, fetchedCustomer.ID)
+	require.Equal(t, newCustomer.Name, fetchedCustomer.Name)
 }
 
 func TestListCustomers(t *testing.T) {

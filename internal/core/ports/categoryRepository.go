@@ -11,4 +11,5 @@ type CategoryRepository interface {
 	GetCategoryByID(ctx context.Context, id int) (*domain.Category, error)
 	ListCategorys(ctx context.Context, limit, offset int) ([]domain.Category, error)
 	DeleteCategory(ctx context.Context, id int) error
+	GetCategoryByName(ctx context.Context, name string) (*domain.Category, error)
 }

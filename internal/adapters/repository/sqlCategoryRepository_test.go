@@ -43,14 +43,11 @@ func TestGetCategoryByID(t *testing.T) {
 	repo := NewCategoryRepository(db)
 	newCategory := CreateRandomCategory(t)
 
-	savedCategory, err := repo.SaveCategory(ctx, newCategory)
-	require.NoError(t, err)
-
-	fetchedCategory, err := repo.GetCategoryByID(ctx, savedCategory.ID)
+	fetchedCategory, err := repo.GetCategoryByID(ctx, newCategory.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedCategory)
-	require.Equal(t, savedCategory.ID, fetchedCategory.ID)
-	require.Equal(t, savedCategory.CategoryName, fetchedCategory.CategoryName)
+	require.Equal(t, newCategory.ID, fetchedCategory.ID)
+	require.Equal(t, newCategory.CategoryName, fetchedCategory.CategoryName)
 }
 
 func TestListCategorys(t *testing.T) {
@@ -84,4 +81,19 @@ func TestDeleteCategory(t *testing.T) {
 	//verify
 	_, err = repo.GetCategoryByID(ctx, int(newCategory.ID))
 	require.Error(t, err)
+}
+
+func TestGetCategoryByName(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCategoryRepository(db)
+	newCategory := CreateRandomCategory(t)
+
+	// get category
+	fetchedCategory, err := repo.GetCategoryByName(ctx, newCategory.CategoryName)
+
+	require.NoError(t, err)
+	require.NotNil(t, fetchedCategory)
+	require.Equal(t, newCategory.ID, fetchedCategory.ID)
+	require.Equal(t, newCategory.CategoryName, fetchedCategory.CategoryName)
 }
