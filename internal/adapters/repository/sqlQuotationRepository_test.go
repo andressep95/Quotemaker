@@ -35,9 +35,24 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 	require.Equal(t, quotation.TotalPrice, savedQuotation.TotalPrice)
 	require.NotZero(t, savedQuotation.ID)
 
-	return quotation
+	return savedQuotation
 }
 
 func TestSaveQuotation(t *testing.T) {
 	CreateRandomQuotation(t)
+}
+
+func TestGetQuotationByID(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewQuotationRepository(db)
+	newQuotation := CreateRandomQuotation(t)
+
+	fetchedQuotation, err := repo.GetQuotationByID(ctx, newQuotation.ID)
+	require.NoError(t, err)
+	require.NotNil(t, fetchedQuotation)
+	// Realizar más aserciones según sea necesario, por ejemplo:
+	require.Equal(t, newQuotation.ID, fetchedQuotation.ID)
+	require.Equal(t, newQuotation.CreatedAt, fetchedQuotation.CreatedAt)
+
 }

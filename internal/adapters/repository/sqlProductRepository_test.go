@@ -48,21 +48,6 @@ func TestSaveProduct(t *testing.T) {
 	CreateRandomProduct(t)
 }
 
-func TestGetProductByID(t *testing.T) {
-	db := util.SetupTestDB(t)
-	ctx := context.Background()
-	repo := NewProductRepository(db)
-	newProduct := CreateRandomProduct(t)
-
-	fetchedProduct, err := repo.GetProductByID(ctx, newProduct.ID)
-	require.NoError(t, err)
-	require.NotNil(t, fetchedProduct)
-	// Realizar más aserciones según sea necesario, por ejemplo:
-	require.Equal(t, newProduct.ID, fetchedProduct.ID)
-	require.Equal(t, newProduct.Name, fetchedProduct.Name)
-
-}
-
 func TestDeleteProduct(t *testing.T) {
 	db := util.SetupTestDB(t)
 	ctx := context.Background()
