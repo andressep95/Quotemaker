@@ -80,15 +80,15 @@ WHERE id = $1;
 
 const getProductsForQuotationQuery = `
 SELECT 
-    p.id, 
-    p.name, 
-    p.category_id, 
-    p.length, 
-    p.price, 
-    p.weight, 
-    p.code, 
-    p.is_available,
-    qp.quantity
+p.id, 
+p.name, 
+p.category_id, 
+p.length, 
+p.price, 
+p.weight, 
+p.code, 
+p.is_available,
+qp.quantity
 FROM product p
 JOIN quote_product qp ON p.id = qp.product_id
 WHERE qp.quotation_id = $1;
@@ -142,14 +142,59 @@ func (r *sqlQuotationRepository) GetQuotationByID(ctx context.Context, id int) (
 	return &quotation, nil
 }
 
+const deleteQuotationQuery = `
+DELETE FROM quotation
+WHERE id = $1;
+`
+
 // DeleteQuotation implements ports.QuotationRepository.
-func (*sqlQuotationRepository) DeleteQuotation(ctx context.Context, id int) error {
-	panic("unimplemented")
+func (r *sqlQuotationRepository) DeleteQuotation(ctx context.Context, id int) error {
+	_, err := r.db.ExecContext(ctx, deleteQuotationQuery, id)
+	return err
 }
 
+const listQuotationsQuery = `
+SELECT id, seller_id, customer_id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
+FROM quotation
+ORDER BY created_at DESC
+LIMIT $1 OFFSET $2;
+`
+
 // ListQuotations implements ports.QuotationRepository.
-func (*sqlQuotationRepository) ListQuotations(ctx context.Context, limit int, offset int) ([]domain.Quotation, error) {
-	panic("unimplemented")
+func (r *sqlQuotationRepository) ListQuotations(ctx context.Context, limit int, offset int) ([]domain.Quotation, error) {
+	rows, err := r.db.QueryContext(ctx, listQuotationsQuery, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var quotations []domain.Quotation
+	for rows.Next() {
+		var q domain.Quotation
+		err := rows.Scan(
+			&q.ID,
+			&q.SellerID,
+			&q.CustomerID,
+			&q.CreatedAt,
+			&q.UpdatedAt,
+			&q.TotalPrice,
+			&q.IsPurchased,
+			&q.PurchasedAt,
+			&q.IsDelivered,
+			&q.DeliveredAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		quotations = append(quotations, q)
+	}
+
+	// Check for any iteration errors
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return quotations, nil
 }
 
 func NewQuotationRepository(db *sqlx.DB) ports.QuotationRepository {

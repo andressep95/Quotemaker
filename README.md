@@ -143,4 +143,3 @@ Tus detalles de contacto y enlace al proyecto en GitHub.
 ## Agradecimientos
 Espacio para agradecer y listar recursos útiles.
 
-<p align="right">(<a href="#readme-top">volver arriba</a>)</p>

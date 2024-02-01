@@ -56,3 +56,36 @@ func TestGetQuotationByID(t *testing.T) {
 	require.Equal(t, newQuotation.CreatedAt, fetchedQuotation.CreatedAt)
 
 }
+
+func TestListQuotation(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewQuotationRepository(db)
+
+	for i := 0; i < 5; i++ {
+		CreateRandomQuotation(t)
+	}
+
+	quotations, err := repo.ListQuotations(ctx, 5, 0)
+	require.NoError(t, err)
+
+	for _, quotation := range quotations {
+		require.NotEmpty(t, quotation)
+		require.Len(t, quotations, 5)
+	}
+}
+
+func TestDeleteQuotation(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewQuotationRepository(db)
+	newQuotation := CreateRandomQuotation(t)
+
+	// delete quotation
+	err := repo.DeleteQuotation(ctx, newQuotation.ID)
+	require.NoError(t, err)
+
+	//verify
+	_, err = repo.GetQuotationByID(ctx, newQuotation.ID)
+	require.Error(t, err)
+}
