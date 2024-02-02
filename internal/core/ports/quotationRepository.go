@@ -11,4 +11,5 @@ type QuotationRepository interface {
 	GetQuotationByID(ctx context.Context, id int) (*domain.Quotation, error)
 	ListQuotations(ctx context.Context, limit, offset int) ([]domain.Quotation, error)
 	DeleteQuotation(ctx context.Context, id int) error
+	UpdateQuotation(ctx context.Context, args domain.Quotation) error
 }

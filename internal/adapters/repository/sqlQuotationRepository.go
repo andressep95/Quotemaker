@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	domain "github.com/Andressep/QuoteMaker/internal/core/domain/entity"
 	"github.com/Andressep/QuoteMaker/internal/core/ports"
@@ -70,6 +71,34 @@ func (r *sqlQuotationRepository) SaveQuotation(ctx context.Context, args domain.
 	}
 
 	return quotation, nil
+}
+
+const updateQuotationQuery = `
+UPDATE quotation
+SET seller_id = $1, customer_id = $2, updated_at = $3, total_price = $4, is_purchased = $5, purchased_at = $6, is_delivered = $7, delivered_at = $8
+WHERE id = $9;
+`
+
+// UpdateQuotation implements ports.QuotationRepository.
+func (r *sqlQuotationRepository) UpdateQuotation(ctx context.Context, args domain.Quotation) error {
+	now := time.Now()
+	if args.UpdatedAt == nil {
+		args.UpdatedAt = &now
+	}
+	_, err := r.db.ExecContext(ctx, updateQuotationQuery,
+		args.SellerID,
+		args.CustomerID,
+		args.UpdatedAt,
+		args.TotalPrice,
+		args.IsPurchased,
+		args.PurchasedAt,
+		args.IsDelivered,
+		args.DeliveredAt,
+		args.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 const getQuotationByIDQuery = `

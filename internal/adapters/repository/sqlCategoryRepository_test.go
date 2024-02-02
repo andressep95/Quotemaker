@@ -97,3 +97,20 @@ func TestGetCategoryByName(t *testing.T) {
 	require.Equal(t, newCategory.ID, fetchedCategory.ID)
 	require.Equal(t, newCategory.CategoryName, fetchedCategory.CategoryName)
 }
+
+func TestUpdateCategory(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCategoryRepository(db)
+	originalCategory := CreateRandomCategory(t)
+
+	// Update catefory name
+	originalCategory.CategoryName = "New Category Name"
+	err := repo.UpdateCategory(ctx, originalCategory)
+	require.NoError(t, err)
+
+	// Verify
+	updatedCategory, err := repo.GetCategoryByID(ctx, originalCategory.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalCategory.CategoryName, updatedCategory.CategoryName)
+}

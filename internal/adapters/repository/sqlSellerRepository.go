@@ -30,6 +30,21 @@ func (r *sqlSellerRepository) SaveSeller(ctx context.Context, args domain.Seller
 	return i, err
 }
 
+const updateSellerQuery = `
+UPDATE seller
+SET name = $1
+WHERE id = $2;
+`
+
+// UpdateSeller implements ports.SellerRepository.
+func (r *sqlSellerRepository) UpdateSeller(ctx context.Context, args domain.Seller) error {
+	_, err := r.db.ExecContext(ctx, updateSellerQuery, args.Name, args.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 const getSellerByID = `
 SELECT id, name
 FROM seller

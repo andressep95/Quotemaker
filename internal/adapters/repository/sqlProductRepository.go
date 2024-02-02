@@ -51,6 +51,21 @@ func (r *sqlProductRepository) SaveProduct(ctx context.Context, args domain.Prod
 	return i, err
 }
 
+const updateProductQuery = `
+UPDATE product
+SET name = $1, category_id = $2, length = $3, price = $4, weight = $5, code = $6, is_available = $7
+WHERE id = $8;
+`
+
+// UpdateProduct implements ports.ProductRepository.
+func (r *sqlProductRepository) UpdateProduct(ctx context.Context, args domain.Product) error {
+	_, err := r.db.ExecContext(ctx, updateProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable, args.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 const getProductByIDQuery = `
 SELECT id, name, category_id, length, price, weight, code, is_available
 FROM product

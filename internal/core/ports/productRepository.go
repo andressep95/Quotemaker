@@ -11,4 +11,5 @@ type ProductRepository interface {
 	GetProductByID(ctx context.Context, id int) (*domain.Product, error)
 	ListProducts(ctx context.Context, limit, offset int) ([]domain.Product, error)
 	DeleteProduct(ctx context.Context, id int) error
+	UpdateProduct(ctx context.Context, args domain.Product) error
 }

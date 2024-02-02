@@ -82,3 +82,19 @@ func TestDeleteSeller(t *testing.T) {
 	_, err = repo.GetSellerByID(ctx, int(newSeller.ID))
 	require.Error(t, err)
 }
+
+func TestUpdateSeller(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewSellerRepository(db)
+	originalSeller := CreateRandomSeller(t)
+
+	// update
+	originalSeller.Name = "New original Name"
+	err := repo.UpdateSeller(ctx, originalSeller)
+	require.NoError(t, err)
+
+	updateSeller, err := repo.GetSellerByID(ctx, originalSeller.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalSeller.Name, updateSeller.Name)
+}

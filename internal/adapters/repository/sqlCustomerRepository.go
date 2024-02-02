@@ -51,6 +51,18 @@ func (r *sqlCustomerRepository) SaveCustomer(ctx context.Context, args domain.Cu
 	return i, err
 }
 
+const updateCustomerQuery = `
+UPDATE customer
+SET name = $1, rut = $2, address = $3, phone = $4, email = $5 
+where id = $6;
+`
+
+// UpdateCustomer implements ports.CustomerRepository.
+func (r *sqlCustomerRepository) UpdateCustomer(ctx context.Context, args domain.Customer) error {
+	_, err := r.db.ExecContext(ctx, updateCustomerQuery, args.Name, args.Rut, args.Address, args.Phone, args.Email, args.ID)
+	return err
+}
+
 const getCustomerByIDQuery = `
 SELECT id, name, rut, address, phone, email
 FROM customer

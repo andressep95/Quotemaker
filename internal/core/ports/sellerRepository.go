@@ -11,4 +11,5 @@ type SellerRepository interface {
 	GetSellerByID(ctx context.Context, id int) (*domain.Seller, error)
 	ListSellers(ctx context.Context, limit, offset int) ([]domain.Seller, error)
 	DeleteSeller(ctx context.Context, id int) error
+	UpdateSeller(ctx context.Context, args domain.Seller) error
 }

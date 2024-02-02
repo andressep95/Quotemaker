@@ -87,3 +87,22 @@ func TestDeleteCustomer(t *testing.T) {
 	_, err = repo.GetCustomerByID(ctx, int(newCustomer.ID))
 	require.Error(t, err)
 }
+
+func TestUpdateCustomer(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewCustomerRepository(db)
+	originalCustomer := CreateRandomCustomer(t)
+
+	// Update
+	originalCustomer.Name = "New Customer Name"
+	originalCustomer.Address = "Avda. Michigan"
+	err := repo.UpdateCustomer(ctx, originalCustomer)
+	require.NoError(t, err)
+
+	// Verify
+	updateCustomer, err := repo.GetCustomerByID(ctx, originalCustomer.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalCustomer.Name, updateCustomer.Name)
+	require.Equal(t, originalCustomer.Address, updateCustomer.Address)
+}

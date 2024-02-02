@@ -30,6 +30,21 @@ func (r *sqlCategoryRepository) SaveCategory(ctx context.Context, args domain.Ca
 	return i, err
 }
 
+const updateCategoryQuery = `
+UPDATE category
+SET category_name = $1
+WHERE id = $2;
+`
+
+// UpdateCategory implements ports.CategoryRepository.
+func (r *sqlCategoryRepository) UpdateCategory(ctx context.Context, category domain.Category) error {
+	_, err := r.db.ExecContext(ctx, updateCategoryQuery, category.CategoryName, category.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 const getCategoryByIDQuery = `
 SELECT id, category_name
 FROM category

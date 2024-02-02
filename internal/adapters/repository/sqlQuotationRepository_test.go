@@ -89,3 +89,22 @@ func TestDeleteQuotation(t *testing.T) {
 	_, err = repo.GetQuotationByID(ctx, newQuotation.ID)
 	require.Error(t, err)
 }
+
+func TestUpdateQuotation(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewQuotationRepository(db)
+	originalQuotation := CreateRandomQuotation(t)
+
+	// update
+	originalQuotation.SellerID = CreateRandomSeller(t).ID
+	originalQuotation.CustomerID = CreateRandomCustomer(t).ID
+	err := repo.UpdateQuotation(ctx, originalQuotation)
+	require.NoError(t, err)
+
+	// verify
+	updateQuotation, err := repo.GetQuotationByID(ctx, originalQuotation.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalQuotation.SellerID, updateQuotation.SellerID)
+	require.Equal(t, originalQuotation.CustomerID, updateQuotation.CustomerID)
+}

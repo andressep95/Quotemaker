@@ -80,3 +80,23 @@ func TestListProducts(t *testing.T) {
 		require.Len(t, products, 5)
 	}
 }
+
+func TestUpdateProduct(t *testing.T) {
+	db := util.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewProductRepository(db)
+	originalProduct := CreateRandomProduct(t)
+
+	// update
+	originalProduct.Name = "Product name"
+	originalProduct.Code = "124214124"
+	err := repo.UpdateProduct(ctx, originalProduct)
+	require.NoError(t, err)
+
+	// verify
+	updateProduct, err := repo.GetProductByID(ctx, originalProduct.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalProduct.Name, updateProduct.Name)
+	require.Equal(t, originalProduct.Code, updateProduct.Code)
+
+}
