@@ -41,65 +41,71 @@ Estructura del Proyecto:
 ```
  ┣ .github
  ┣ assets
- ┃ ┗ images
+ ┃ ┣ images
  ┃ ┃ ┗ QuoteMaker_Logo.png
+ ┃ ┗ .DS_Store
  ┣ cmd
  ┃ ┗ main.go
  ┣ internal
- ┃ ┣ adapters
- ┃ ┃ ┣ api
- ┃ ┃ ┃ ┗ models
- ┃ ┃ ┃ ┃ ┣ customer
- ┃ ┃ ┃ ┃ ┗ product
- ┃ ┃ ┃ ┃ ┃ ┣ productRequest.go
- ┃ ┃ ┃ ┃ ┃ ┗ productResponse.go
- ┃ ┃ ┗ repository
- ┃ ┃ ┃ ┣ sqlCategoryRepository.go
- ┃ ┃ ┃ ┣ sqlCategoryRepository_test.go
- ┃ ┃ ┃ ┣ sqlCustomerRepository.go
- ┃ ┃ ┃ ┣ sqlCustomerRepository_test.go
- ┃ ┃ ┃ ┣ sqlProductRepository.go
- ┃ ┃ ┃ ┣ sqlProductRepository_test.go
- ┃ ┃ ┃ ┣ sqlQuotationRepository.go
- ┃ ┃ ┃ ┣ sqlQuotationRepository_test.go
- ┃ ┃ ┃ ┣ sqlSellerRepository.go
- ┃ ┃ ┃ ┗ sqlSellerRepository_test.go
- ┃ ┣ application
- ┃ ┃ ┣ mappers
- ┃ ┃ ┗ usecases
- ┃ ┃ ┃ ┗ productUseCases.go
- ┃ ┣ config
- ┃ ┃ ┣ config.go
- ┃ ┃ ┗ config.yaml
- ┃ ┣ core
+ ┃ ┣ app
+ ┃ ┃ ┣ application
+ ┃ ┃ ┃ ┣ category
+ ┃ ┃ ┃ ┣ customer
+ ┃ ┃ ┃ ┣ product
+ ┃ ┃ ┃ ┣ quotation
+ ┃ ┃ ┃ ┗ seller
  ┃ ┃ ┣ domain
- ┃ ┃ ┃ ┣ entity
+ ┃ ┃ ┃ ┣ category
  ┃ ┃ ┃ ┃ ┣ category.go
+ ┃ ┃ ┃ ┃ ┗ categoryRepository.go
+ ┃ ┃ ┃ ┣ customer
  ┃ ┃ ┃ ┃ ┣ customer.go
+ ┃ ┃ ┃ ┃ ┗ customerRepository.go
+ ┃ ┃ ┃ ┣ product
  ┃ ┃ ┃ ┃ ┣ product.go
+ ┃ ┃ ┃ ┃ ┗ productRepository.go
+ ┃ ┃ ┃ ┣ quotation
  ┃ ┃ ┃ ┃ ┣ quotation.go
- ┃ ┃ ┃ ┃ ┣ quoteProduct.go
- ┃ ┃ ┃ ┃ ┗ seller.go
- ┃ ┃ ┃ ┗ service
- ┃ ┃ ┃ ┃ ┗ productService.go
- ┃ ┃ ┗ ports
- ┃ ┃ ┃ ┣ categoryRepository.go
- ┃ ┃ ┃ ┣ customerRepository.go
- ┃ ┃ ┃ ┣ productRepository.go
- ┃ ┃ ┃ ┣ quotationRepository.go
- ┃ ┃ ┃ ┗ sellerRepository.go
- ┃ ┣ infrastructure
- ┃ ┃ ┣ db
- ┃ ┃ ┃ ┗ db.go
- ┃ ┃ ┣ grpc
- ┃ ┃ ┗ http
- ┃ ┗ util
- ┃ ┃ ┣ random.go
- ┃ ┃ ┗ testUtils.go
+ ┃ ┃ ┃ ┃ ┗ quotationRepository.go
+ ┃ ┃ ┃ ┗ seller
+ ┃ ┃ ┃ ┃ ┣ seller.go
+ ┃ ┃ ┃ ┃ ┗ sellerRepository.go
+ ┃ ┃ ┗ infrastructure
+ ┃ ┃ ┃ ┣ config
+ ┃ ┃ ┃ ┃ ┣ config.go
+ ┃ ┃ ┃ ┃ ┗ config.yaml
+ ┃ ┃ ┃ ┣ db
+ ┃ ┃ ┃ ┃ ┗ db.go
+ ┃ ┃ ┃ ┣ persistence
+ ┃ ┃ ┃ ┃ ┣ category
+ ┃ ┃ ┃ ┃ ┃ ┣ sqlCategoryRepository.go
+ ┃ ┃ ┃ ┃ ┃ ┗ sqlCategoryRepository_test.go
+ ┃ ┃ ┃ ┃ ┣ customer
+ ┃ ┃ ┃ ┃ ┃ ┣ sqlCustomerRepository.go
+ ┃ ┃ ┃ ┃ ┃ ┗ sqlCustomerRepository_test.go
+ ┃ ┃ ┃ ┃ ┣ product
+ ┃ ┃ ┃ ┃ ┃ ┣ sqlProductRepository.go
+ ┃ ┃ ┃ ┃ ┃ ┗ sqlProductRepository_test.go
+ ┃ ┃ ┃ ┃ ┣ quotation
+ ┃ ┃ ┃ ┃ ┃ ┣ sqlQuotationRepository.go
+ ┃ ┃ ┃ ┃ ┃ ┗ sqlQuotationRepository_test.go
+ ┃ ┃ ┃ ┃ ┗ seller
+ ┃ ┃ ┃ ┃ ┃ ┣ sqlSellerRepository.go
+ ┃ ┃ ┃ ┃ ┃ ┗ sqlSellerRepository_test.go
+ ┃ ┃ ┃ ┗ transport
+ ┃ ┃ ┃ ┃ ┣ grpc
+ ┃ ┃ ┃ ┃ ┗ http
+ ┃ ┗ pkg
+ ┃ ┃ ┣ util
+ ┃ ┃ ┃ ┗ random.go
+ ┃ ┃ ┗ utiltest
+ ┃ ┃ ┃ ┗ create_random.go
  ┣ migrations
  ┃ ┣ 000001_init_schema.down.sql
  ┃ ┗ 000001_init_schema.up.sql
+ ┣ .DS_Store
  ┣ .env
+ ┣ .gitignore
  ┣ LICENSE
  ┣ Makefile
  ┣ README.md

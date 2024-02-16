@@ -3,7 +3,6 @@ module github.com/Andressep/QuoteMaker
 go 1.21.4
 
 require (
-	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.8.4
 	gopkg.in/yaml.v2 v2.4.0
