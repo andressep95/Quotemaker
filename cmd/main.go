@@ -3,13 +3,9 @@ package main
 import (
 	"log"
 
-	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
-	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/config"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/db"
-	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/category"
-	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/product"
-	controller "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
+	"github.com/Andressep/QuoteMaker/internal/pkg/wireup"
 	"github.com/labstack/echo"
 )
 
@@ -27,14 +23,7 @@ func main() {
 		log.Fatalf("No se pudo establecer la conexión a la base de datos: %v", err)
 	}
 	defer db.Close()
-
-	productRepo := product.NewProductRepository(db)
-	categoryRepo := category.NewCategoryRepository(db)
-	productService := domain.NewProductService(productRepo, categoryRepo)
-	productUseCase := application.NewCreateProduct(productService)
-	productController := controller.NewProductController(productUseCase)
-
-	controller.ProductRouter(e, productController)
+	wireup.SetupAppControllers(e, db)
 	// Inicia el servidor
 	e.Logger.Fatal(e.Start(":8080"))
 
