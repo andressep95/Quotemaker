@@ -23,6 +23,7 @@ func main() {
 		log.Fatalf("No se pudo establecer la conexión a la base de datos: %v", err)
 	}
 	defer db.Close()
+
 	wireup.SetupAppControllers(e, db)
 	// Inicia el servidor
 	e.Logger.Fatal(e.Start(":8080"))
