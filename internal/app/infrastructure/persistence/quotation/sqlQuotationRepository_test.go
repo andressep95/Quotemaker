@@ -107,8 +107,8 @@ func TestUpdateQuotation(t *testing.T) {
 	originalQuotation := CreateRandomQuotation(t)
 
 	// update
-	originalQuotation.SellerID = 1
-	originalQuotation.CustomerID = 1
+	originalQuotation.SellerID = 5
+	originalQuotation.CustomerID = 5
 	err := repo.UpdateQuotation(ctx, originalQuotation)
 	require.NoError(t, err)
 
