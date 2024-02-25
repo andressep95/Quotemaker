@@ -137,9 +137,6 @@ Pasos para clonar el repositorio y configurar el entorno de desarrollo.
 ## Uso
 Ejemplos de cómo se puede utilizar el proyecto. Enlace a la documentación para más ejemplos.
 
-## Contribuyendo
-Instrucciones para contribuir al proyecto. Incentivar a la comunidad a participar.
-
 ## Licencia
 Distribuido bajo la Licencia MIT. Ver `LICENSE.txt` para más información.
 
