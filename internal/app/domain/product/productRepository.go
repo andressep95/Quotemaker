@@ -10,4 +10,5 @@ type ProductRepository interface {
 	ListProducts(ctx context.Context, limit, offset int) ([]Product, error)
 	DeleteProduct(ctx context.Context, id int) error
 	UpdateProduct(ctx context.Context, args Product) error
+	ListProductsByName(ctx context.Context, limit, offset int, description string) ([]Product, error)
 }

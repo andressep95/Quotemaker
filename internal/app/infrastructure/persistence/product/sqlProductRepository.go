@@ -1,4 +1,4 @@
-package persistence
+package product
 
 import (
 	"context"
@@ -11,8 +11,49 @@ type sqlProductRepository struct {
 	db *sql.DB
 }
 
+const listProductsByNameQuery = `
+        SELECT id, name, category_id, ROUND(length::numeric, 2), ROUND(price::numeric, 2), ROUND(weight::numeric, 2), code, is_available
+        FROM product
+        WHERE lower(name) LIKE lower($1)
+        ORDER BY id
+        LIMIT $2 OFFSET $3;
+    `
+
+// ListProductsByDescription implements domain.ProductRepository.
+func (r *sqlProductRepository) ListProductsByName(ctx context.Context, limit int, offset int, name string) ([]domain.Product, error) {
+	var products []domain.Product
+	rows, err := r.db.QueryContext(ctx, listProductsByNameQuery, "%"+name+"%", limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product domain.Product
+		err := rows.Scan(
+			&product.ID,
+			&product.Name,
+			&product.CategoryID,
+			&product.Length,
+			&product.Price,
+			&product.Weight,
+			&product.Code,
+			&product.IsAvailable,
+		)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
+
 const listProductsQuery = `
-SELECT id, name, code, category_id, length, price, weight, is_available
+SELECT id, name, code, category_id, ROUND(length::numeric, 2) as length, ROUND(price::numeric, 2) as price, ROUND(weight::numeric, 2) as weight, is_available
 FROM product
 ORDER BY id
 LIMIT $1 OFFSET $2;

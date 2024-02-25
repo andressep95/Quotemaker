@@ -1,4 +1,4 @@
-package persistence
+package product
 
 import (
 	"context"
@@ -18,8 +18,8 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 
 	product := domain.Product{
 		Name:        "Product-" + util.RandomString(8),
+		CategoryID:  1,
 		Price:       util.RandomFloat(100, 500),
-		CategoryID:  1, // Siempre usa la categoría con ID 1
 		Length:      util.RandomFloat(1, 6),
 		Weight:      util.RandomFloat(10, 15),
 		Code:        "Code-" + util.RandomString(8),
@@ -103,5 +103,22 @@ func TestUpdateProduct(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, originalProduct.Name, updateProduct.Name)
 	require.Equal(t, originalProduct.Code, updateProduct.Code)
+}
 
+func TestListProductsByName(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewProductRepository(db)
+
+	for i := 0; i < 20; i++ {
+		CreateRandomProduct(t)
+	}
+
+	products, err := repo.ListProductsByName(ctx, 5, 0, "Pro")
+	require.NoError(t, err)
+
+	for _, product := range products {
+		require.NotEmpty(t, product)
+		require.True(t, true, len(products) <= 5)
+	}
 }
