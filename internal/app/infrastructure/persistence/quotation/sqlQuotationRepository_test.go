@@ -21,7 +21,7 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 	repo := NewQuotationRepository(db)
 
 	quotation := domain.Quotation{
-		SellerID:   1,
+		SellerID:   10,
 		CustomerID: 1,
 		CreatedAt:  time.Now(),
 		TotalPrice: util.RandomFloat(1000, 10000),
