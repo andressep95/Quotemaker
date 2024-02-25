@@ -21,17 +21,17 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 	repo := NewQuotationRepository(db)
 
 	quotation := domain.Quotation{
-		SellerID:   10,
-		CustomerID: 1,
+		SellerID:   5,
+		CustomerID: 5,
 		CreatedAt:  time.Now(),
 		TotalPrice: util.RandomFloat(1000, 10000),
 	}
-	_, err := db.ExecContext(ctx, "INSERT INTO seller (id, name) VALUES (1, 'Test Seller') ON CONFLICT (id) DO NOTHING")
+	_, err := db.ExecContext(ctx, "INSERT INTO seller (id, name) VALUES (5, 'Test Seller') ON CONFLICT (id) DO NOTHING")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
 
-	_, err = db.ExecContext(ctx, "INSERT INTO customer (id, name, rut, address, phone, email) VALUES (1, 'Test customer', '26.931.652-7', 'anyway', '9 8765 4321', 'some@gmail.com') ON CONFLICT (id) DO NOTHING")
+	_, err = db.ExecContext(ctx, "INSERT INTO customer (id, name, rut, address, phone, email) VALUES (5, 'Test customer', '26.931.652-7', 'anyway', '9 8765 4321', 'some@gmail.com') ON CONFLICT (id) DO NOTHING")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
