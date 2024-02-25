@@ -23,6 +23,11 @@ func CreateRandomSeller(t *testing.T) domain.Seller {
 	ctx := context.Background()
 	repo := NewSellerRepository(db)
 
+	// Inicia una transacción.
+	tx, err := db.BeginTx(ctx, nil)
+	require.NoError(t, err)
+	defer tx.Rollback() // Asegúrate de revertir los cambios al final de la función.
+
 	savedSeller, err := repo.SaveSeller(ctx, seller)
 
 	require.NoError(t, err)
