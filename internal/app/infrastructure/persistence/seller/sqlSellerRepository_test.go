@@ -2,9 +2,7 @@ package seller
 
 import (
 	"context"
-	"math/rand"
 	"testing"
-	"time"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/seller"
 	"github.com/Andressep/QuoteMaker/internal/pkg/util"
@@ -13,10 +11,9 @@ import (
 )
 
 func CreateRandomSeller(t *testing.T) domain.Seller {
-	rand.Seed(time.Now().UnixNano())
 
 	seller := domain.Seller{
-		Name: util.RandomString(10),
+		Name: util.RandomString(15),
 	}
 
 	db := utiltest.SetupTestDB(t)
@@ -34,7 +31,14 @@ func CreateRandomSeller(t *testing.T) domain.Seller {
 	return savedSeller
 }
 func TestCreateSeller(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewSellerRepository(db)
 	CreateRandomSeller(t)
+	t.Cleanup(func() {
+		err := repo.DeleteSeller(ctx, CreateRandomSeller(t).ID)
+		require.NoError(t, err)
+	})
 }
 
 func TestGetSellerByID(t *testing.T) {
@@ -87,6 +91,10 @@ func TestUpdateSeller(t *testing.T) {
 	ctx := context.Background()
 	repo := NewSellerRepository(db)
 	originalSeller := CreateRandomSeller(t)
+	t.Cleanup(func() {
+		err := repo.DeleteSeller(ctx, CreateRandomSeller(t).ID)
+		require.NoError(t, err)
+	})
 
 	// update
 	originalSeller.Name = "New original Name"

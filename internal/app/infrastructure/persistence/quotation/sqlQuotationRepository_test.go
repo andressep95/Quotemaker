@@ -50,7 +50,17 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 }
 
 func TestSaveQuotation(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewQuotationRepository(db)
+
 	CreateRandomQuotation(t)
+	t.Cleanup(
+		func() {
+			err := repo.DeleteQuotation(ctx, CreateRandomQuotation(t).ID)
+			require.NoError(t, err)
+		},
+	)
 }
 
 func TestGetQuotationByID(t *testing.T) {
@@ -58,11 +68,16 @@ func TestGetQuotationByID(t *testing.T) {
 	ctx := context.Background()
 	repo := NewQuotationRepository(db)
 	newQuotation := CreateRandomQuotation(t)
+	t.Cleanup(
+		func() {
+			err := repo.DeleteQuotation(ctx, CreateRandomQuotation(t).ID)
+			require.NoError(t, err)
+		},
+	)
 
 	fetchedQuotation, err := repo.GetQuotationByID(ctx, newQuotation.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedQuotation)
-	// Realizar más aserciones según sea necesario, por ejemplo:
 	require.Equal(t, newQuotation.ID, fetchedQuotation.ID)
 	require.Equal(t, newQuotation.CreatedAt, fetchedQuotation.CreatedAt)
 }
@@ -104,11 +119,16 @@ func TestUpdateQuotation(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	repo := NewQuotationRepository(db)
+	t.Cleanup(
+		func() {
+			err := repo.DeleteQuotation(ctx, CreateRandomQuotation(t).ID)
+			require.NoError(t, err)
+		},
+	)
 	originalQuotation := CreateRandomQuotation(t)
 
 	// update
-	originalQuotation.SellerID = 5
-	originalQuotation.CustomerID = 5
+
 	err := repo.UpdateQuotation(ctx, originalQuotation)
 	require.NoError(t, err)
 
