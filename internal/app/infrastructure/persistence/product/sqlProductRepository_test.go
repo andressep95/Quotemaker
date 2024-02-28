@@ -18,7 +18,7 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 
 	product := domain.Product{
 		Name:        "Product-" + util.RandomString(8),
-		CategoryID:  1,
+		CategoryID:  util.RandomInt(1, 100),
 		Price:       util.RandomFloat(100, 500),
 		Length:      util.RandomFloat(1, 6),
 		Weight:      util.RandomFloat(10, 15),
@@ -29,7 +29,7 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 
-	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES (1, 'Test Category') ON CONFLICT (id) DO NOTHING")
+	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", product.CategoryID, "Test Category")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
