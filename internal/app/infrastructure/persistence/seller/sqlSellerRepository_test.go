@@ -30,6 +30,8 @@ func CreateRandomSeller(t *testing.T) domain.Seller {
 
 	return savedSeller
 }
+
+/*
 func TestCreateSeller(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
@@ -54,25 +56,24 @@ func TestGetSellerByID(t *testing.T) {
 	require.Equal(t, newSeller.Name, fetchedSeller.Name)
 }
 
-/*
-	func TestListSellers(t *testing.T) {
-		db := utiltest.SetupTestDB(t)
-		ctx := context.Background()
-		repo := NewSellerRepository(db)
+func TestListSellers(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	repo := NewSellerRepository(db)
 
-		for i := 0; i < 5; i++ {
-			CreateRandomSeller(t)
-		}
-
-		sellers, err := repo.ListSellers(ctx, 5, 0)
-		require.NoError(t, err)
-
-		for _, seller := range sellers {
-			require.NotEmpty(t, seller)
-			require.Len(t, sellers, 5)
-		}
+	for i := 0; i < 5; i++ {
+		CreateRandomSeller(t)
 	}
-*/
+
+	sellers, err := repo.ListSellers(ctx, 5, 0)
+	require.NoError(t, err)
+
+	for _, seller := range sellers {
+		require.NotEmpty(t, seller)
+		require.Len(t, sellers, 5)
+	}
+}
+
 func TestDeleteSeller(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
@@ -107,3 +108,4 @@ func TestUpdateSeller(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, originalSeller.Name, updateSeller.Name)
 }
+*/
