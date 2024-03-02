@@ -1,33 +1,25 @@
 package config
 
-import (
-	_ "embed"
-
-	"gopkg.in/yaml.v2"
-)
-
-//go:embed config.yaml
-var settingsFile []byte
-
-type DBConfig struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Name     string `yaml:"name"`
-}
+import "github.com/spf13/viper"
 
 type Config struct {
-	Port string   `yaml:"port"`
-	DB   DBConfig `yaml:"database"`
+	DBDriver      string `mapstructure:"DB_DRIVER"`
+	DBSource      string `mapstructure:"DB_SOURCE"`
+	ServerAddress string `mapstructure:"SERVER_ADDRESS"`
 }
 
-func LoadConfig() (*Config, error) {
-	var config Config
+func LoadConfig(path string) (config Config, err error) {
+	viper.AddConfigPath(path)
+	viper.SetConfigName("app")
+	viper.SetConfigType("env")
 
-	err := yaml.Unmarshal(settingsFile, &config)
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
 	if err != nil {
-		return nil, err
+		return
 	}
-	return &config, nil
+
+	err = viper.Unmarshal(&config)
+	return
 }

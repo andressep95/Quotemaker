@@ -1,7 +1,7 @@
 port: 8080
 database:
-  host: localhost
+  host: db
   port: 5432
-  user: root
-  password: secret
+  user: postgres
+  password: postgres
   name: quote_maker

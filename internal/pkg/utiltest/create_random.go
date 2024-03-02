@@ -7,16 +7,18 @@ import (
 
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/config"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/db"
-	"github.com/stretchr/testify/require"
+	_ "github.com/lib/pq"
 )
 
 func SetupTestDB(t *testing.T) *sql.DB {
-	config, err := config.LoadConfig()
+	config, err := config.LoadConfig("../../../../..")
 	if err != nil {
-		log.Fatalf("Failed to load configuration: %v", err)
+		log.Fatal("cannot load the config: ", err)
 	}
 
-	database, err := db.NewDBConnection(&config.DB)
-	require.NoError(t, err)
+	database, err := db.NewDBConnection(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("cannot connect to database:", err)
+	}
 	return database
 }

@@ -12,13 +12,14 @@ import (
 func main() {
 	// Inicia el servidor
 	e := echo.New()
-	// Suponiendo que tienes una función para cargar tu configuración
-	cfg, err := config.LoadConfig()
+
+	config, err := config.LoadConfig(".")
 	if err != nil {
-		return
+		log.Fatal("cannot load the config: ", err)
 	}
+
 	// Crea la conexión a la base de datos
-	db, err := db.NewDBConnection(&cfg.DB)
+	db, err := db.NewDBConnection(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatalf("No se pudo establecer la conexión a la base de datos: %v", err)
 	}
@@ -26,6 +27,6 @@ func main() {
 
 	wireup.SetupAppControllers(e, db)
 	// Inicia el servidor
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(config.ServerAddress))
 
 }

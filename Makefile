@@ -8,10 +8,13 @@ dropdb:
 	docker exec -it postgres dropdb quote_maker
 
 migrateup:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose up
+	migrate -path migrations -database "postgres://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose up
 
 migratedown:
-	migrate -path migrations -database "postgresql://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose down	
+	migrate -path migrations -database "postgres://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose down	
+
+server:
+	go run cmd/main.go
 
 test:
 	go test -v -cover ./...
