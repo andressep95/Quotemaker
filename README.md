@@ -143,6 +143,27 @@ Distribuido bajo la Licencia MIT. Ver `LICENSE.txt` para más información.
 ## Contacto
 Tus detalles de contacto y enlace al proyecto en GitHub.
 
-## Agradecimientos
-Espacio para agradecer y listar recursos útiles.
+## Para crear redes para contenedores
+docker build -t <Nombre del contenedor:version> .
+docker network create <Nombre de la red creada>
+docker network connect <Nombre de la red a conectarse> <Nombre del contenedor a incluir>
+docker network inspect <Nombre de la red a inspeccionar>
+docker container inspect <Nombre del contenedor a inspeccionar>
 
+
+## Pasos de conexion
+1) crear red. 
+  docker network create <Nombre red>
+2) conectarse a red creada.
+  docker network connect <Nombre red>
+3) crear contenedor de bd.
+  	docker run --name <Nombre contendor> --network <Nombre red> -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
+4) crear contenedor postgres conectado a la red.
+  docker network connect api-network <Nombre contenedor>
+5) poblar base de datos y migraciones de la bd
+  docker exec -it postgres createdb --username=root --owner=root quote_maker
+  migrate -path migrations -database "postgres://root:secret@localhost:5432/quote_maker?sslmode=disable" -verbose up
+6) crear imagen de go.
+    docker build -t <Nombre imagen>:latest .
+7) correr imagen de go en red.
+  docker run --name <Nombre imagen> --network <Nombre red> -p 8080:8080 -e DB_SOURCE="postgres://root:secret@postgres:5432/quote_maker?sslmode=disable" go-api:latest
