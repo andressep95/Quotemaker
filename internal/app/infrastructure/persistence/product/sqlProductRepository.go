@@ -52,6 +52,46 @@ func (r *sqlProductRepository) ListProductsByName(ctx context.Context, limit int
 	return products, nil
 }
 
+const listProductsByCategoryQuery = `
+        SELECT id, name, category_id, ROUND(length::numeric, 2), ROUND(price::numeric, 2), ROUND(weight::numeric, 2), code, is_available
+        FROM product
+        WHERE category_id = $1
+        ORDER BY name;
+    `
+
+// ListProductByCategory implements domain.ProductRepository.
+func (r *sqlProductRepository) ListProductByCategory(ctx context.Context, categoryID int) ([]domain.Product, error) {
+	var products []domain.Product
+	rows, err := r.db.QueryContext(ctx, listProductsByCategoryQuery, categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var product domain.Product
+		err := rows.Scan(
+			&product.ID,
+			&product.Name,
+			&product.CategoryID,
+			&product.Length,
+			&product.Price,
+			&product.Weight,
+			&product.Code,
+			&product.IsAvailable,
+		)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return products, nil
+}
+
 const listProductsQuery = `
 SELECT id, name, code, category_id, ROUND(length::numeric, 2) as length, ROUND(price::numeric, 2) as price, ROUND(weight::numeric, 2) as weight, is_available
 FROM product

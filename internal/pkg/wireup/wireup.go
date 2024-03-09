@@ -2,38 +2,40 @@ package wireup
 
 import (
 	"database/sql"
-	"net/http"
 
-	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
-	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
-	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/category"
-	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/product"
-	controller "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	catCases "github.com/Andressep/QuoteMaker/internal/app/application/category"
+	prodCases "github.com/Andressep/QuoteMaker/internal/app/application/product"
+	catService "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	prodService "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	"github.com/gin-gonic/gin"
+
+	catRep "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/category"
+	prodRep "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/product"
+	catContrl "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/category"
+	prodContrl "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
 )
 
-func SetupAppControllers(e *echo.Echo, db *sql.DB) {
+func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Repository´s
-	productRepo := product.NewProductRepository(db)
-	categoryRepo := category.NewCategoryRepository(db)
+	categoryRepo := catRep.NewCategoryRepository(db)
+	productRepo := prodRep.NewProductRepository(db)
 
 	// Services´s
-	productService := domain.NewProductService(productRepo, categoryRepo)
+	categoryService := catService.NewCategoryService(categoryRepo)
+	productService := prodService.NewProductService(productRepo, categoryRepo)
 
 	// Usecase´s
-	createProductUseCase := application.NewCreateProduct(productService)
-	listProductUseCase := application.NewListProduct(productService)
+	createCategoryUseCase := catCases.NewCreateCategory(categoryService)
+	listCategoryUseCase := catCases.NewListCategory(categoryService)
+	createProductUseCase := prodCases.NewCreateProduct(productService)
+	listProductUseCase := prodCases.NewListProduct(productService)
 
 	// Controller´s
-	productController := controller.NewProductController(createProductUseCase, listProductUseCase)
+	categoryController := catContrl.NewCategoryController(createCategoryUseCase, listCategoryUseCase)
+	productController := prodContrl.NewProductController(createProductUseCase, listProductUseCase)
 
-	// middleware
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
-	}))
 	// Routes
-	productController.ProductRouter(e)
+	productController.ProductRouter(r)
+	categoryController.CategoryRouter(r)
+
 }

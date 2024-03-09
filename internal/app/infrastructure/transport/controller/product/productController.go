@@ -5,14 +5,15 @@ import (
 	"strconv"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 )
 
-func (pc *ProductController) ProductRouter(e *echo.Echo) {
-	// Registra las rutas para productos aquí
-	e.POST("/products", pc.CreateProductHandler)
-	e.GET("/products", pc.ListProductsHandler)
-
+// ProductRouter registra las rutas para productos en Gin.
+func (pc *ProductController) ProductRouter(r *gin.Engine) {
+	// Rutas para productos
+	r.POST("/products", pc.CreateProductHandler)
+	r.GET("/products", pc.ListProductsByNameHandler)
+	r.GET("/products/category", pc.ListProductsByCategoryHandler)
 }
 
 type ProductController struct {
@@ -28,46 +29,56 @@ func NewProductController(createProductUseCase *application.CreateProduct, listP
 }
 
 // CreateProductHandler maneja las solicitudes POST para crear nuevos productos.
-func (pc *ProductController) CreateProductHandler(c echo.Context) error {
-	req := new(application.CreateProductRequest)
-	if err := c.Bind(req); err != nil {
-		// Echo automáticamente responde con un error 400 si el bind falla.
-		return err
+func (pc *ProductController) CreateProductHandler(c *gin.Context) {
+	var req application.CreateProductRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	resp, err := pc.createProductUseCase.RegisterProduct(c.Request().Context(), req)
+	resp, err := pc.createProductUseCase.RegisterProduct(c.Request.Context(), &req)
 	if err != nil {
-		// Aquí puedes manejar diferentes tipos de errores y responder adecuadamente.
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	return c.JSON(http.StatusCreated, resp)
+	c.JSON(http.StatusCreated, resp)
 }
 
-// ListProductsHandler maneja las solicitudes para listar productos.
-func (pc *ProductController) ListProductsHandler(c echo.Context) error {
-	// Obtener los parámetros de la solicitud
-	name := c.QueryParam("name")
-	limit, err := strconv.Atoi(c.QueryParam("limit"))
-	if err != nil {
-		limit = 10 // Valor por defecto si no se especifica
-	}
-	offset, err := strconv.Atoi(c.QueryParam("offset"))
-	if err != nil {
-		offset = 0 // Valor por defecto si no se especifica
-	}
+// ListProductsByNameHandler maneja las solicitudes GET para listar productos por nombre.
+func (pc *ProductController) ListProductsByNameHandler(c *gin.Context) {
+	name := c.Query("name")
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
-	// Crear y ejecutar la solicitud del caso de uso
 	request := application.ListProductsRequest{
 		Name:   name,
 		Limit:  limit,
 		Offset: offset,
 	}
-	response, err := pc.listProductUseCase.ListProductByName(c.Request().Context(), &request)
+
+	response, err := pc.listProductUseCase.ListProductByName(c.Request.Context(), &request)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
-	// Devolver la respuesta
-	return c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
+}
+
+// ListProductsByCategoryHandler maneja las solicitudes GET para listar productos por categoría.
+func (pc *ProductController) ListProductsByCategoryHandler(c *gin.Context) {
+	categoryName := c.Query("category_name")
+
+	request := application.ListProductByCategoryRequest{
+		CategoryName: categoryName,
+	}
+
+	response, err := pc.listProductUseCase.ListProductByCategory(c.Request.Context(), request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }

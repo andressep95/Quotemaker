@@ -78,3 +78,12 @@ func (s *ProductService) CreateProduct(ctx context.Context, product Product) (*P
 func (s *ProductService) ListProductsByName(ctx context.Context, limit, offset int, name string) ([]Product, error) {
 	return s.productRepo.ListProductsByName(ctx, limit, offset, name)
 }
+
+func (s *ProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]Product, error) {
+	category, err := s.categoryRepo.GetCategoryByName(ctx, categoryName)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.productRepo.ListProductByCategory(ctx, category.ID)
+}

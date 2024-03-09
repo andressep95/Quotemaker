@@ -28,6 +28,10 @@ type ListProductsResponse struct {
 	Products []ProductDTO `json:"products"`
 }
 
+type ListProductByCategoryRequest struct {
+	CategoryName string `json:"category_name"`
+}
+
 type ProductDTO struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
@@ -60,6 +64,30 @@ func (l *ListProduct) ListProductByName(ctx context.Context, request *ListProduc
 		}
 	}
 
+	return &ListProductsResponse{
+		Products: productDTOs,
+	}, nil
+}
+
+func (l *ListProduct) ListProductByCategory(ctx context.Context, request ListProductByCategoryRequest) (*ListProductsResponse, error) {
+	products, err := l.productService.ListProductByCategory(ctx, request.CategoryName)
+	if err != nil {
+		return nil, err
+	}
+	// Mapea los productos a DTOs para el response.
+	productDTOs := make([]ProductDTO, len(products))
+	for i, p := range products {
+		productDTOs[i] = ProductDTO{
+			ID:          p.ID,
+			Name:        p.Name,
+			CategoryID:  p.CategoryID,
+			Length:      p.Length,
+			Price:       p.Price,
+			Weight:      p.Weight,
+			Code:        p.Code,
+			IsAvailable: p.IsAvailable,
+		}
+	}
 	return &ListProductsResponse{
 		Products: productDTOs,
 	}, nil

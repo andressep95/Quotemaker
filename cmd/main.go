@@ -6,12 +6,12 @@ import (
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/config"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/db"
 	"github.com/Andressep/QuoteMaker/internal/pkg/wireup"
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	// Inicia el servidor
-	e := echo.New()
+	r := gin.Default()
 
 	config, err := config.LoadConfig(".")
 	if err != nil {
@@ -25,8 +25,8 @@ func main() {
 	}
 	defer db.Close()
 
-	wireup.SetupAppControllers(e, db)
+	wireup.SetupAppControllers(r, db)
 	// Inicia el servidor
-	e.Logger.Fatal(e.Start(config.ServerAddress))
+	r.Run(config.ServerAddress)
 
 }
