@@ -75,6 +75,23 @@ func (s *ProductService) CreateProduct(ctx context.Context, product Product) (*P
 	return &id, nil
 }
 
+func (s *ProductService) GetProductByID(ctx context.Context, productID int) (*Product, error) {
+	// Validar que el ID del producto sea válido.
+	if productID <= 0 {
+		return &Product{}, fmt.Errorf("el ID del producto debe ser mayor que cero")
+	}
+
+	// Llamar al repositorio para obtener el producto por su ID.
+	product, err := s.productRepo.GetProductByID(ctx, productID)
+	if err != nil {
+		// Manejar cualquier error que pueda surgir durante la obtención del producto.
+		return &Product{}, fmt.Errorf("error al obtener el producto por ID %d: %w", productID, err)
+	}
+
+	// Devolver el producto obtenido y ningún error.
+	return product, nil
+}
+
 func (s *ProductService) ListProductsByName(ctx context.Context, limit, offset int, name string) ([]Product, error) {
 	return s.productRepo.ListProductsByName(ctx, limit, offset, name)
 }
@@ -82,8 +99,37 @@ func (s *ProductService) ListProductsByName(ctx context.Context, limit, offset i
 func (s *ProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]Product, error) {
 	category, err := s.categoryRepo.GetCategoryByName(ctx, categoryName)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error al buscar la categoria: %v", err)
 	}
 
+	if category.ID < 1 {
+		return nil, fmt.Errorf("no se encontró la categoría con el nombre: %s", categoryName)
+	}
 	return s.productRepo.ListProductByCategory(ctx, category.ID)
+}
+
+func (s *ProductService) UpdateProduct(ctx context.Context, product Product) (*Product, error) {
+
+	if product.ID <= 0 {
+		return nil, errors.New("el ID del producto debe ser mayor que cero")
+	}
+	if product.Name == "" {
+		return nil, errors.New("el nombre del producto no puede estar vacío")
+	}
+	if product.Price < 0 {
+		return nil, errors.New("el precio del producto no puede ser negativo")
+	}
+	// Puedes agregar más validaciones según sea necesario
+
+	// Actualizar el producto en la base de datos a través del repositorio
+	updatedProduct, err := s.productRepo.UpdateProduct(ctx, product)
+	if err != nil {
+		return nil, fmt.Errorf("error al actualizar el producto: %v", err)
+	}
+
+	return &updatedProduct, nil
+}
+
+func (s *ProductService) DeleteProduct(ctx context.Context, productID int) error {
+	return s.productRepo.DeleteProduct(ctx, productID)
 }

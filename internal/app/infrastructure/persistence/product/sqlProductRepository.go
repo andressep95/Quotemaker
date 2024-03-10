@@ -3,6 +3,9 @@ package product
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
+	"log"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
 )
@@ -124,7 +127,6 @@ func (r *sqlProductRepository) ListProducts(ctx context.Context, limit, offset i
 		products = append(products, i)
 	}
 
-	// Verificar por errores al finalizar la iteración
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
@@ -138,20 +140,39 @@ RETURNING id, name, category_id, length, price, weight, code, is_available;
 `
 
 func (r *sqlProductRepository) SaveProduct(ctx context.Context, args domain.Product) (domain.Product, error) {
-	row := r.db.QueryRowContext(ctx, saveProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable)
-	var i domain.Product
+	// Iniciar la transacción
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return domain.Product{}, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		tx.Commit()
+	}()
 
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.CategoryID,
-		&i.Length,
-		&i.Price,
-		&i.Weight,
-		&i.Code,
-		&i.IsAvailable,
+	// Ejecutar la consulta dentro de la transacción
+	row := tx.QueryRowContext(ctx, saveProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable)
+	var product domain.Product
+
+	// Escanear el resultado de la consulta en una estructura de producto
+	err = row.Scan(
+		&product.ID,
+		&product.Name,
+		&product.CategoryID,
+		&product.Length,
+		&product.Price,
+		&product.Weight,
+		&product.Code,
+		&product.IsAvailable,
 	)
-	return i, err
+	if err != nil {
+		return domain.Product{}, fmt.Errorf("failed to scan product: %w", err)
+	}
+
+	return product, nil
 }
 
 const updateProductQuery = `
@@ -161,12 +182,27 @@ WHERE id = $8;
 `
 
 // UpdateProduct implements ports.ProductRepository.
-func (r *sqlProductRepository) UpdateProduct(ctx context.Context, args domain.Product) error {
-	_, err := r.db.ExecContext(ctx, updateProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable, args.ID)
+func (r *sqlProductRepository) UpdateProduct(ctx context.Context, args domain.Product) (domain.Product, error) {
+	// Iniciar la transacción
+	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return domain.Product{}, fmt.Errorf("could not begin transaction: %v", err)
 	}
-	return nil
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			log.Printf("transaction rolled back: %v", err)
+			return
+		}
+		tx.Commit()
+	}()
+
+	_, err = tx.ExecContext(ctx, updateProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable, args.ID)
+	if err != nil {
+		log.Printf("error updating the product: %v", err)
+		return domain.Product{}, err
+	}
+	return args, nil
 }
 
 const getProductByIDQuery = `
@@ -189,7 +225,13 @@ func (r *sqlProductRepository) GetProductByID(ctx context.Context, id int) (*dom
 		&i.Code,
 		&i.IsAvailable,
 	)
-
+	// Manejar posibles errores.
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("producto con ID %d no encontrado", id)
+		}
+		return nil, fmt.Errorf("error al recuperar el producto con ID %d: %w", id, err)
+	}
 	return &i, err
 }
 

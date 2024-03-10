@@ -95,7 +95,7 @@ func TestUpdateProduct(t *testing.T) {
 	// update
 	originalProduct.Name = "Product name"
 	originalProduct.Code = "124214124"
-	err := repo.UpdateProduct(ctx, originalProduct)
+	_, err := repo.UpdateProduct(ctx, originalProduct)
 	require.NoError(t, err)
 
 	// verify

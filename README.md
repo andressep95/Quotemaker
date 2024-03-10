@@ -26,10 +26,8 @@
 - [Empezando](#empezando)
 - [Instalación](#instalación)
 - [Uso](#uso)
-- [Contribuyendo](#contribuyendo)
 - [Licencia](#licencia)
-- [Contacto](#contacto)
-- [Agradecimientos](#agradecimientos)
+- [Errores](#errores)
 
 ## Introducción
 Facilita la creación de cotizaciones minimizando el tipeo manual y los posibles errores que podrían ocurrir al hacerlo de la forma convencional.
@@ -140,8 +138,8 @@ Ejemplos de cómo se puede utilizar el proyecto. Enlace a la documentación para
 ## Licencia
 Distribuido bajo la Licencia MIT. Ver `LICENSE.txt` para más información.
 
-## Contacto
-Tus detalles de contacto y enlace al proyecto en GitHub.
+## Errores
+1. Error "No such file start.sh" o "No such file wait-for.sh", estos se deben a modificaciones en los saltos de linea en los archivos al hacer una operacion en git, puede ser solucionado con los comandos "dos2unix start.sh" y "dos2unix wait-for.sh", en caso de que sea un error de permisos habra que ejecutar los comandos "chmod +x start.sh" o "chmod +x wait-for.sh"
 
 ## Para crear redes para contenedores
 docker build -t <Nombre del contenedor:version> .

@@ -16,6 +16,20 @@ func NewListProduct(productService *domain.ProductService) *ListProduct {
 	}
 }
 
+type GetProductByIDRequest struct {
+	ID int `json:"id"`
+}
+type GetProductByIDResponse struct {
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	CategoryID  int     `json:"category_id"`
+	Length      float64 `json:"length"`
+	Price       float64 `json:"price"`
+	Weight      float64 `json:"weight"`
+	Code        string  `json:"code"`
+	IsAvailable bool    `json:"is_available"`
+}
+
 // ListProductsRequest define los datos de entrada para listar productos.
 type ListProductsRequest struct {
 	Name   string `json:"name"`
@@ -91,4 +105,24 @@ func (l *ListProduct) ListProductByCategory(ctx context.Context, request ListPro
 	return &ListProductsResponse{
 		Products: productDTOs,
 	}, nil
+}
+
+func (p *ListProduct) GetProductByID(ctx context.Context, request *GetProductByIDRequest) (*GetProductByIDResponse, error) {
+	product, err := p.productService.GetProductByID(ctx, request.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	productDTO := GetProductByIDResponse{
+		ID:          product.ID,
+		Name:        product.Name,
+		CategoryID:  product.CategoryID,
+		Length:      product.Length,
+		Price:       product.Price,
+		Weight:      product.Weight,
+		Code:        product.Code,
+		IsAvailable: product.IsAvailable,
+	}
+
+	return &productDTO, nil
 }
