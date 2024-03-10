@@ -13,8 +13,8 @@ type sqlQuotationRepository struct {
 }
 
 const insertQuotationQuery = `
-INSERT INTO quotation (seller_id, customer_id, total_price, is_purchased, is_delivered)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO quotation (total_price, is_purchased, is_delivered)
+VALUES ($1, $2, $3)
 RETURNING id, created_at;
 `
 const insertProductQuery = `
@@ -39,8 +39,6 @@ func (r *sqlQuotationRepository) SaveQuotation(ctx context.Context, args domain.
 
 	// Completa los campos de la cotización con los datos de args
 	quotation := domain.Quotation{
-		SellerID:    args.SellerID,
-		CustomerID:  args.CustomerID,
 		TotalPrice:  args.TotalPrice,
 		IsPurchased: args.IsPurchased,
 		IsDelivered: args.IsDelivered,
@@ -48,7 +46,7 @@ func (r *sqlQuotationRepository) SaveQuotation(ctx context.Context, args domain.
 	}
 
 	// Inserta la cotización y recupera datos relevantes
-	row := tx.QueryRowContext(ctx, insertQuotationQuery, quotation.SellerID, quotation.CustomerID, quotation.TotalPrice, quotation.IsPurchased, quotation.IsDelivered)
+	row := tx.QueryRowContext(ctx, insertQuotationQuery, quotation.TotalPrice, quotation.IsPurchased, quotation.IsDelivered)
 	err = row.Scan(
 		&quotation.ID,
 		&quotation.CreatedAt,
@@ -74,8 +72,8 @@ func (r *sqlQuotationRepository) SaveQuotation(ctx context.Context, args domain.
 
 const updateQuotationQuery = `
 UPDATE quotation
-SET seller_id = $1, customer_id = $2, updated_at = $3, total_price = $4, is_purchased = $5, purchased_at = $6, is_delivered = $7, delivered_at = $8
-WHERE id = $9;
+SET updated_at = $1, total_price = $2, is_purchased = $3, purchased_at = $4, is_delivered = $5, delivered_at = $6
+WHERE id = $7;
 `
 
 // UpdateQuotation implements ports.QuotationRepository.
@@ -85,8 +83,6 @@ func (r *sqlQuotationRepository) UpdateQuotation(ctx context.Context, args domai
 		args.UpdatedAt = &now
 	}
 	_, err := r.db.ExecContext(ctx, updateQuotationQuery,
-		args.SellerID,
-		args.CustomerID,
 		args.UpdatedAt,
 		args.TotalPrice,
 		args.IsPurchased,
@@ -101,7 +97,7 @@ func (r *sqlQuotationRepository) UpdateQuotation(ctx context.Context, args domai
 }
 
 const getQuotationByIDQuery = `
-SELECT id, seller_id, customer_id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
+SELECT id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
 FROM quotation
 WHERE id = $1;
 `
@@ -129,8 +125,6 @@ func (r *sqlQuotationRepository) GetQuotationByID(ctx context.Context, id int) (
 
 	err := row.Scan(
 		&quotation.ID,
-		&quotation.SellerID,
-		&quotation.CustomerID,
 		&quotation.CreatedAt,
 		&quotation.UpdatedAt,
 		&quotation.TotalPrice,
@@ -182,7 +176,7 @@ func (r *sqlQuotationRepository) DeleteQuotation(ctx context.Context, id int) er
 }
 
 const listQuotationsQuery = `
-SELECT id, seller_id, customer_id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
+SELECT id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
 FROM quotation
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
@@ -201,8 +195,6 @@ func (r *sqlQuotationRepository) ListQuotations(ctx context.Context, limit int, 
 		var q domain.Quotation
 		err := rows.Scan(
 			&q.ID,
-			&q.SellerID,
-			&q.CustomerID,
 			&q.CreatedAt,
 			&q.UpdatedAt,
 			&q.TotalPrice,

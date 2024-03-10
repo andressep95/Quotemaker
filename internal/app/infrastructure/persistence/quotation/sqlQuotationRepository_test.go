@@ -2,7 +2,6 @@ package quotation
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -21,19 +20,8 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 	repo := NewQuotationRepository(db)
 
 	quotation := domain.Quotation{
-		SellerID:   util.RandomInt(1, 100),
-		CustomerID: util.RandomInt(1, 100),
 		CreatedAt:  time.Now(),
 		TotalPrice: util.RandomFloat(1000, 10000),
-	}
-	_, err := db.ExecContext(ctx, "INSERT INTO seller (id, name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", quotation.SellerID, "Seller x")
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
-	_, err = db.ExecContext(ctx, "INSERT INTO customer (id, name, rut, address, phone, email) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING", quotation.CustomerID, "Customer x", "26.931.652-7", "any place", "9 8765 4321", "some@gmail.com")
-	if err != nil {
-		fmt.Println("error:", err)
 	}
 
 	savedQuotation, err := repo.SaveQuotation(ctx, quotation)
@@ -41,8 +29,6 @@ func CreateRandomQuotation(t *testing.T) domain.Quotation {
 	require.NoError(t, err)
 	require.NotEqual(t, 0, savedQuotation.ID) // Asegúrate de que se generó un ID
 	require.NotEmpty(t, savedQuotation)
-	require.Equal(t, quotation.SellerID, savedQuotation.SellerID)
-	require.Equal(t, quotation.CustomerID, savedQuotation.CustomerID)
 	require.Equal(t, quotation.TotalPrice, savedQuotation.TotalPrice)
 	require.NotZero(t, savedQuotation.ID)
 
@@ -135,6 +121,5 @@ func TestUpdateQuotation(t *testing.T) {
 	// verify
 	updateQuotation, err := repo.GetQuotationByID(ctx, originalQuotation.ID)
 	require.NoError(t, err)
-	require.Equal(t, originalQuotation.SellerID, updateQuotation.SellerID)
-	require.Equal(t, originalQuotation.CustomerID, updateQuotation.CustomerID)
+	require.Equal(t, originalQuotation.TotalPrice, updateQuotation.TotalPrice)
 }
