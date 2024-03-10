@@ -26,9 +26,7 @@ CREATE TABLE IF NOT EXISTS quotation (
     is_purchased BOOLEAN DEFAULT FALSE,
     purchased_at TIMESTAMP,  -- Fecha de compra
     is_delivered BOOLEAN DEFAULT FALSE,
-    delivered_at TIMESTAMP,  -- Fecha de entrega
-    FOREIGN KEY (seller_id) REFERENCES seller(id),
-    FOREIGN KEY (customer_id) REFERENCES customer(id)
+    delivered_at TIMESTAMP  -- Fecha de entrega
 );
 
 -- Table quote_product
