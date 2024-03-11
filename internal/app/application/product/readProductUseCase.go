@@ -6,13 +6,13 @@ import (
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
 )
 
-type ListProduct struct {
-	productService *domain.ProductService
+type ReadProductUseCase struct {
+	readProductUseCase *domain.ReadProductService
 }
 
-func NewListProduct(productService *domain.ProductService) *ListProduct {
-	return &ListProduct{
-		productService: productService,
+func NewReadProductUseCase(readProductUseCase *domain.ReadProductService) *ReadProductUseCase {
+	return &ReadProductUseCase{
+		readProductUseCase: readProductUseCase,
 	}
 }
 
@@ -58,8 +58,8 @@ type ProductDTO struct {
 }
 
 // Execute ejecuta la lógica del caso de uso de listar productos.
-func (l *ListProduct) ListProductByName(ctx context.Context, request *ListProductsRequest) (*ListProductsResponse, error) {
-	products, err := l.productService.ListProductsByName(ctx, request.Limit, request.Offset, request.Name)
+func (r *ReadProductUseCase) ListProductByName(ctx context.Context, request *ListProductsRequest) (*ListProductsResponse, error) {
+	products, err := r.readProductUseCase.ListProductsByName(ctx, request.Limit, request.Offset, request.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -83,8 +83,8 @@ func (l *ListProduct) ListProductByName(ctx context.Context, request *ListProduc
 	}, nil
 }
 
-func (l *ListProduct) ListProductByCategory(ctx context.Context, request ListProductByCategoryRequest) (*ListProductsResponse, error) {
-	products, err := l.productService.ListProductByCategory(ctx, request.CategoryName)
+func (r *ReadProductUseCase) ListProductByCategory(ctx context.Context, request ListProductByCategoryRequest) (*ListProductsResponse, error) {
+	products, err := r.readProductUseCase.ListProductByCategory(ctx, request.CategoryName)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +107,8 @@ func (l *ListProduct) ListProductByCategory(ctx context.Context, request ListPro
 	}, nil
 }
 
-func (p *ListProduct) GetProductByID(ctx context.Context, request *GetProductByIDRequest) (*GetProductByIDResponse, error) {
-	product, err := p.productService.GetProductByID(ctx, request.ID)
+func (r *ReadProductUseCase) GetProductByID(ctx context.Context, request *GetProductByIDRequest) (*GetProductByIDResponse, error) {
+	product, err := r.readProductUseCase.GetProductByID(ctx, request.ID)
 	if err != nil {
 		return nil, err
 	}

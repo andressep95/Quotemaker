@@ -10,20 +10,19 @@ import (
 	"github.com/lib/pq"
 )
 
-type ProductService struct {
-	productRepo  ProductRepository
-	categoryRepo domain.CategoryRepository
+type WriteProductService struct {
+	writeProductRepo WriteProductRepository
+	categoryRepo     domain.CategoryRepository
 }
 
-func NewProductService(productRepo ProductRepository, categoryRepo domain.CategoryRepository) *ProductService {
-	return &ProductService{
-		productRepo:  productRepo,
-		categoryRepo: categoryRepo,
+func NewWriteProductService(writeProductRepo WriteProductRepository, categoryRepo domain.CategoryRepository) *WriteProductService {
+	return &WriteProductService{
+		writeProductRepo: writeProductRepo,
+		categoryRepo:     categoryRepo,
 	}
 }
 
-// CreateProduct valida y crea un nuevo producto.
-func (s *ProductService) CreateProduct(ctx context.Context, product Product) (*Product, error) {
+func (s *WriteProductService) CreateProduct(ctx context.Context, product Product) (*Product, error) {
 	if product.Name == "" {
 		return nil, errors.New("el nombre del producto no puede estar vacío")
 	}
@@ -67,7 +66,7 @@ func (s *ProductService) CreateProduct(ctx context.Context, product Product) (*P
 		}
 	}
 	// Continúa con guardar el producto en la base de datos
-	id, err := s.productRepo.SaveProduct(ctx, product)
+	id, err := s.writeProductRepo.SaveProduct(ctx, product)
 	if err != nil {
 		return nil, err
 	}
@@ -75,40 +74,7 @@ func (s *ProductService) CreateProduct(ctx context.Context, product Product) (*P
 	return &id, nil
 }
 
-func (s *ProductService) GetProductByID(ctx context.Context, productID int) (*Product, error) {
-	// Validar que el ID del producto sea válido.
-	if productID <= 0 {
-		return &Product{}, fmt.Errorf("el ID del producto debe ser mayor que cero")
-	}
-
-	// Llamar al repositorio para obtener el producto por su ID.
-	product, err := s.productRepo.GetProductByID(ctx, productID)
-	if err != nil {
-		// Manejar cualquier error que pueda surgir durante la obtención del producto.
-		return &Product{}, fmt.Errorf("error al obtener el producto por ID %d: %w", productID, err)
-	}
-
-	// Devolver el producto obtenido y ningún error.
-	return product, nil
-}
-
-func (s *ProductService) ListProductsByName(ctx context.Context, limit, offset int, name string) ([]Product, error) {
-	return s.productRepo.ListProductsByName(ctx, limit, offset, name)
-}
-
-func (s *ProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]Product, error) {
-	category, err := s.categoryRepo.GetCategoryByName(ctx, categoryName)
-	if err != nil {
-		return nil, fmt.Errorf("error al buscar la categoria: %v", err)
-	}
-
-	if category.ID < 1 {
-		return nil, fmt.Errorf("no se encontró la categoría con el nombre: %s", categoryName)
-	}
-	return s.productRepo.ListProductByCategory(ctx, category.ID)
-}
-
-func (s *ProductService) UpdateProduct(ctx context.Context, product Product) (*Product, error) {
+func (s *WriteProductService) UpdateProduct(ctx context.Context, product Product) (*Product, error) {
 
 	if product.ID <= 0 {
 		return nil, errors.New("el ID del producto debe ser mayor que cero")
@@ -122,7 +88,7 @@ func (s *ProductService) UpdateProduct(ctx context.Context, product Product) (*P
 	// Puedes agregar más validaciones según sea necesario
 
 	// Actualizar el producto en la base de datos a través del repositorio
-	updatedProduct, err := s.productRepo.UpdateProduct(ctx, product)
+	updatedProduct, err := s.writeProductRepo.UpdateProduct(ctx, product)
 	if err != nil {
 		return nil, fmt.Errorf("error al actualizar el producto: %v", err)
 	}
@@ -130,6 +96,6 @@ func (s *ProductService) UpdateProduct(ctx context.Context, product Product) (*P
 	return &updatedProduct, nil
 }
 
-func (s *ProductService) DeleteProduct(ctx context.Context, productID int) error {
-	return s.productRepo.DeleteProduct(ctx, productID)
+func (s *WriteProductService) DeleteProduct(ctx context.Context, productID int) error {
+	return s.writeProductRepo.DeleteProduct(ctx, productID)
 }

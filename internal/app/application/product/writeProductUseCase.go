@@ -38,12 +38,11 @@ type DeleteProductRequest struct {
 	ID int `json:"id"`
 }
 
-// DeleteProductResponse define los datos de salida tras eliminar un producto.
 type DeleteProductResponse struct {
 	Message string `json:"message"`
 }
 
-func (c *CreateProduct) RegisterProduct(ctx context.Context, request *CreateProductRequest) (*CreateProductResponse, error) {
+func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *CreateProductRequest) (*CreateProductResponse, error) {
 	product := &domain.Product{
 		Name:        request.Name,
 		CategoryID:  request.CategoryID,
@@ -53,7 +52,7 @@ func (c *CreateProduct) RegisterProduct(ctx context.Context, request *CreateProd
 		Code:        request.Code,
 		IsAvailable: request.IsAvailable,
 	}
-	createdProduct, err := c.productService.CreateProduct(ctx, *product)
+	createdProduct, err := w.writeProductService.CreateProduct(ctx, *product)
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +63,9 @@ func (c *CreateProduct) RegisterProduct(ctx context.Context, request *CreateProd
 	}, nil
 }
 
-func (c *CreateProduct) ModifyProduct(ctx context.Context, request *UpdateProductRequest) (*CreateProductResponse, error) {
+func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *UpdateProductRequest) (*CreateProductResponse, error) {
 	// Primero, obtén el producto existente que se desea modificar
-	existingProduct, err := c.productService.GetProductByID(ctx, request.ID)
+	existingProduct, err := w.readProductService.GetProductByID(ctx, request.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +80,7 @@ func (c *CreateProduct) ModifyProduct(ctx context.Context, request *UpdateProduc
 	existingProduct.IsAvailable = request.IsAvailable
 
 	// Llama al servicio de dominio para modificar el producto en la base de datos
-	updatedProduct, err := c.productService.UpdateProduct(ctx, *existingProduct)
+	updatedProduct, err := w.writeProductService.UpdateProduct(ctx, *existingProduct)
 	if err != nil {
 		return nil, err
 	}
@@ -95,9 +94,9 @@ func (c *CreateProduct) ModifyProduct(ctx context.Context, request *UpdateProduc
 }
 
 // Execute ejecuta la lógica del caso de uso de eliminar un producto.
-func (c *CreateProduct) DeleteProduct(ctx context.Context, request *DeleteProductRequest) (*DeleteProductResponse, error) {
+func (w *WriteProductUseCase) DeleteProduct(ctx context.Context, request *DeleteProductRequest) (*DeleteProductResponse, error) {
 	// Llama al servicio de dominio para eliminar el producto.
-	err := c.productService.DeleteProduct(ctx, request.ID)
+	err := w.writeProductService.DeleteProduct(ctx, request.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -109,12 +108,14 @@ func (c *CreateProduct) DeleteProduct(ctx context.Context, request *DeleteProduc
 	}, nil
 }
 
-type CreateProduct struct {
-	productService *domain.ProductService
+type WriteProductUseCase struct {
+	writeProductService *domain.WriteProductService
+	readProductService  *domain.ReadProductService
 }
 
-func NewCreateProduct(productService *domain.ProductService) *CreateProduct {
-	return &CreateProduct{
-		productService: productService,
+func NewWriteProductUseCase(writeProductService *domain.WriteProductService, readProductService *domain.ReadProductService) *WriteProductUseCase {
+	return &WriteProductUseCase{
+		writeProductService: writeProductService,
+		readProductService:  readProductService,
 	}
 }

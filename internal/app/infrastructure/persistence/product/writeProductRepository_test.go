@@ -1,0 +1,58 @@
+package persistence
+
+import (
+	"context"
+	"testing"
+
+	"github.com/Andressep/QuoteMaker/internal/pkg/utiltest"
+	"github.com/stretchr/testify/require"
+)
+
+func TestSaveProduct(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	writeRepo := NewWriteProductRepository(db)
+	product := utiltest.CreateRandomProduct(t)
+
+	savedProduct, err := writeRepo.SaveProduct(ctx, product)
+	require.NoError(t, err)
+	require.Equal(t, product.ID, savedProduct.ID)
+	require.Equal(t, product.Name, savedProduct.Name)
+	require.Equal(t, product.IsAvailable, savedProduct.IsAvailable)
+}
+
+func TestDeleteProduct(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	writeRepo := NewWriteProductRepository(db)
+	readRepo := NewReadProductRepository(db)
+	newProduct := utiltest.CreateRandomProduct(t)
+
+	// delete product
+	err := writeRepo.DeleteProduct(ctx, int(newProduct.ID))
+	require.NoError(t, err)
+
+	//verify
+	_, err = readRepo.GetProductByID(ctx, int(newProduct.ID))
+	require.Error(t, err)
+}
+
+func TestUpdateProduct(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	writeRepo := NewWriteProductRepository(db)
+	readRepo := NewReadProductRepository(db)
+	originalProduct := utiltest.CreateRandomProduct(t)
+
+	// update
+	originalProduct.Name = "Product name"
+	originalProduct.Code = "124214124"
+	_, err := writeRepo.UpdateProduct(ctx, originalProduct)
+	require.NoError(t, err)
+
+	// verify
+	updateProduct, err := readRepo.GetProductByID(ctx, originalProduct.ID)
+	require.NoError(t, err)
+	require.Equal(t, originalProduct.Name, updateProduct.Name)
+	require.Equal(t, originalProduct.Code, updateProduct.Code)
+}
