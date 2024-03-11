@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/Andressep/QuoteMaker/internal/pkg/utiltest"
@@ -13,6 +14,10 @@ func TestSaveProduct(t *testing.T) {
 	ctx := context.Background()
 	writeRepo := NewWriteProductRepository(db)
 	product := utiltest.CreateRandomProduct(t)
+	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", product.CategoryID, "Test Category")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
 	savedProduct, err := writeRepo.SaveProduct(ctx, product)
 	require.NoError(t, err)
