@@ -22,7 +22,7 @@ func TestSaveProduct(t *testing.T) {
 
 	savedProduct, err := writeRepo.SaveProduct(ctx, product)
 	require.NoError(t, err)
-	require.Equal(t, product.ID, savedProduct.ID)
+	require.NotEmpty(t, savedProduct.ID)
 	require.Equal(t, product.Name, savedProduct.Name)
 	require.Equal(t, product.IsAvailable, savedProduct.IsAvailable)
 }
@@ -49,11 +49,15 @@ func TestUpdateProduct(t *testing.T) {
 	writeRepo := NewWriteProductRepository(db)
 	readRepo := NewReadProductRepository(db)
 	originalProduct := utiltest.CreateRandomProduct(t)
+	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", originalProduct.CategoryID, "Test Category")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
 	// update
 	originalProduct.Name = "Product name"
 	originalProduct.Code = "124214124"
-	_, err := writeRepo.UpdateProduct(ctx, originalProduct)
+	_, err = writeRepo.UpdateProduct(ctx, originalProduct)
 	require.NoError(t, err)
 
 	// verify

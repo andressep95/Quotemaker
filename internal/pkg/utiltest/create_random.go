@@ -39,5 +39,6 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 		Code:        "Code-" + util.RandomString(8),
 		IsAvailable: true,
 	}
+
 	return product
 }
