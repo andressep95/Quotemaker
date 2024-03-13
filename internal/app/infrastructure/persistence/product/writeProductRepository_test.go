@@ -27,22 +27,6 @@ func TestSaveProduct(t *testing.T) {
 	require.Equal(t, product.IsAvailable, savedProduct.IsAvailable)
 }
 
-func TestDeleteProduct(t *testing.T) {
-	db := utiltest.SetupTestDB(t)
-	ctx := context.Background()
-	writeRepo := NewWriteProductRepository(db)
-	readRepo := NewReadProductRepository(db)
-	newProduct := utiltest.CreateRandomProduct(t)
-
-	// delete product
-	err := writeRepo.DeleteProduct(ctx, int(newProduct.ID))
-	require.NoError(t, err)
-
-	//verify
-	_, err = readRepo.GetProductByID(ctx, int(newProduct.ID))
-	require.Error(t, err)
-}
-
 func TestUpdateProduct(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
@@ -65,4 +49,20 @@ func TestUpdateProduct(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, originalProduct.Name, updateProduct.Name)
 	require.Equal(t, originalProduct.Code, updateProduct.Code)
+}
+
+func TestDeleteProduct(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	writeRepo := NewWriteProductRepository(db)
+	readRepo := NewReadProductRepository(db)
+	newProduct := utiltest.CreateRandomProduct(t)
+
+	// delete product
+	err := writeRepo.DeleteProduct(ctx, int(newProduct.ID))
+	require.NoError(t, err)
+
+	//verify
+	_, err = readRepo.GetProductByID(ctx, int(newProduct.ID))
+	require.Error(t, err)
 }

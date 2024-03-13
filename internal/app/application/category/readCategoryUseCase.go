@@ -6,12 +6,14 @@ import (
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/category"
 )
 
-type ListCategory struct {
-	categoryService *domain.CategoryService
+type ReadCategoryUseCase struct {
+	readCategoryService *domain.ReadCategoryService
 }
 
-func NewListCategory(categoryService *domain.CategoryService) *ListCategory {
-	return &ListCategory{categoryService: categoryService}
+func NewReadCategoryUseCase(readCategoryService *domain.ReadCategoryService) *ReadCategoryUseCase {
+	return &ReadCategoryUseCase{
+		readCategoryService: readCategoryService,
+	}
 }
 
 type ListCategorysRequest struct {
@@ -26,8 +28,8 @@ type CategoryDTO struct {
 	CategoryName string `json:"category_name"`
 }
 
-func (l *ListCategory) ListCategorys(ctx context.Context, request *ListCategorysRequest) (*ListCategorysResponse, error) {
-	categorys, err := l.categoryService.ListCategorys(ctx, request.Limit, request.Offset)
+func (l *ReadCategoryUseCase) ListCategorys(ctx context.Context, request *ListCategorysRequest) (*ListCategorysResponse, error) {
+	categorys, err := l.readCategoryService.ListCategorys(ctx, request.Limit, request.Offset)
 	if err != nil {
 		return nil, err
 	}

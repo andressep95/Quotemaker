@@ -11,14 +11,16 @@ import (
 )
 
 type WriteProductService struct {
-	writeProductRepo WriteProductRepository
-	categoryRepo     domain.CategoryRepository
+	writeProductRepo  WriteProductRepository
+	writeCategoryRepo domain.WriteCategoryRepository
+	readCategoryRepo  domain.ReadCategoryRepository
 }
 
-func NewWriteProductService(writeProductRepo WriteProductRepository, categoryRepo domain.CategoryRepository) *WriteProductService {
+func NewWriteProductService(writeProductRepo WriteProductRepository, writeCategoryRepo domain.WriteCategoryRepository, readCategoryRepo domain.ReadCategoryRepository) *WriteProductService {
 	return &WriteProductService{
-		writeProductRepo: writeProductRepo,
-		categoryRepo:     categoryRepo,
+		writeProductRepo:  writeProductRepo,
+		writeCategoryRepo: writeCategoryRepo,
+		readCategoryRepo:  readCategoryRepo,
 	}
 }
 
@@ -36,16 +38,16 @@ func (s *WriteProductService) CreateProduct(ctx context.Context, product Product
 		return nil, errors.New("el código del producto no puede estar vacío")
 	}
 	if product.CategoryID < 1 {
-		category, err := s.categoryRepo.GetCategoryByName(ctx, "No Asignada")
+		category, err := s.readCategoryRepo.GetCategoryByName(ctx, "No Asignada")
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				createdCategory, createErr := s.categoryRepo.SaveCategory(ctx, domain.Category{CategoryName: "No Asignada"})
+				createdCategory, createErr := s.writeCategoryRepo.SaveCategory(ctx, domain.Category{CategoryName: "No Asignada"})
 				if createErr != nil {
 					// Verifica si el error es debido a una clave duplicada
 					var pgErr *pq.Error
 					if errors.As(createErr, &pgErr) && pgErr.Code == "23505" {
 						// Si el error es por clave duplicada, puede ser una condición de carrera, reintenta obtener la categoría
-						category, err = s.categoryRepo.GetCategoryByName(ctx, "No Asignada")
+						category, err = s.readCategoryRepo.GetCategoryByName(ctx, "No Asignada")
 						if err != nil {
 							// Manejar el error si aún falla
 							return nil, fmt.Errorf("error al obtener la categoría 'No Asignada' después de un conflicto de clave duplicada: %w", err)

@@ -7,7 +7,9 @@ import (
 	"testing"
 	"time"
 
-	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	domainCat "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	domainProd "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/config"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/db"
 	"github.com/Andressep/QuoteMaker/internal/pkg/util"
@@ -27,10 +29,10 @@ func SetupTestDB(t *testing.T) *sql.DB {
 	return database
 }
 
-func CreateRandomProduct(t *testing.T) domain.Product {
+func CreateRandomProduct(t *testing.T) domainProd.Product {
 	rand.Seed(time.Now().UnixNano())
 
-	product := domain.Product{
+	product := domainProd.Product{
 		Name:        "Product-" + util.RandomString(8),
 		CategoryID:  util.RandomInt(1, 100),
 		Price:       util.RandomFloat(100, 500),
@@ -41,4 +43,13 @@ func CreateRandomProduct(t *testing.T) domain.Product {
 	}
 
 	return product
+}
+
+func CreateRandomCategory(t *testing.T) domainCat.Category {
+	rand.Seed(time.Now().UnixNano())
+
+	category := domainCat.Category{
+		CategoryName: util.RandomString(5),
+	}
+	return category
 }

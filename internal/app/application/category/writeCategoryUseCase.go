@@ -14,11 +14,11 @@ type CreateCategoryResponse struct {
 	CategoryName string `json:"category_name"`
 }
 
-func (c *CreateCategory) RegisterCategory(ctx context.Context, request *CreateCategoryRequest) (*CreateCategoryResponse, error) {
+func (w *WriteCategoryUseCase) RegisterCategory(ctx context.Context, request *CreateCategoryRequest) (*CreateCategoryResponse, error) {
 	category := &domain.Category{
 		CategoryName: request.CategoryName,
 	}
-	createdCategory, err := c.categoryService.CreateCategory(ctx, *category)
+	createdCategory, err := w.writeCategoryService.CreateCategory(ctx, *category)
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +28,12 @@ func (c *CreateCategory) RegisterCategory(ctx context.Context, request *CreateCa
 	}, nil
 }
 
-type CreateCategory struct {
-	categoryService *domain.CategoryService
+type WriteCategoryUseCase struct {
+	writeCategoryService *domain.WriteCategoryService
 }
 
-func NewCreateCategory(categoryService *domain.CategoryService) *CreateCategory {
-	return &CreateCategory{
-		categoryService: categoryService,
+func NewWriteCategoryUseCase(writeCategoryService *domain.WriteCategoryService) *WriteCategoryUseCase {
+	return &WriteCategoryUseCase{
+		writeCategoryService: writeCategoryService,
 	}
 }

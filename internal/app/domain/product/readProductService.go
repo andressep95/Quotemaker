@@ -8,14 +8,14 @@ import (
 )
 
 type ReadProductService struct {
-	readProductRepo ReadProductRepository
-	categoryRepo    domain.CategoryRepository
+	readProductRepo  ReadProductRepository
+	readCategoryRepo domain.ReadCategoryRepository
 }
 
-func NewReadProductService(readProductRepo ReadProductRepository, categoryRepo domain.CategoryRepository) *ReadProductService {
+func NewReadProductService(readProductRepo ReadProductRepository, readCategoryRepo domain.ReadCategoryRepository) *ReadProductService {
 	return &ReadProductService{
-		readProductRepo: readProductRepo,
-		categoryRepo:    categoryRepo,
+		readProductRepo:  readProductRepo,
+		readCategoryRepo: readCategoryRepo,
 	}
 }
 
@@ -24,7 +24,7 @@ func (s *ReadProductService) ListProductsByName(ctx context.Context, limit, offs
 }
 
 func (s *ReadProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]Product, error) {
-	category, err := s.categoryRepo.GetCategoryByName(ctx, categoryName)
+	category, err := s.readCategoryRepo.GetCategoryByName(ctx, categoryName)
 	if err != nil {
 		return nil, fmt.Errorf("error al buscar la categoria: %v", err)
 	}

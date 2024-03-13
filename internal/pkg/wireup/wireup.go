@@ -22,23 +22,26 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Repository´s
 	readProductRepo := persistence.NewReadProductRepository(db)
 	writeProductRepo := persistence.NewWriteProductRepository(db)
-	categoryRepo := categoryRepo.NewCategoryRepository(db)
+	readCategoryRepo := categoryRepo.NewReadCategoryRepository(db)
+	writeCategoryRepo := categoryRepo.NewWriteCategoryRepository(db)
 
 	// Services´s
-	readProductService := domain.NewReadProductService(readProductRepo, categoryRepo)
-	writeProductService := domain.NewWriteProductService(writeProductRepo, categoryRepo)
-	categoryService := categoryServ.NewCategoryService(categoryRepo)
+	readProductService := domain.NewReadProductService(readProductRepo, readCategoryRepo)
+	writeProductService := domain.NewWriteProductService(writeProductRepo, writeCategoryRepo, readCategoryRepo)
+	readCategoryService := categoryServ.NewReadCategoryService(readCategoryRepo)
+	writeCategoryService := categoryServ.NewWriteCategoryService(writeCategoryRepo)
 
 	// Usecase´s
 	readProductUseCase := application.NewReadProductUseCase(readProductService)
 	writeProductUseCase := application.NewWriteProductUseCase(writeProductService, readProductService)
-	categoryListUseCase := appCategory.NewListCategory(categoryService)
-	categoryCreateUseCase := appCategory.NewCreateCategory(categoryService)
+	readCategegoryUseCase := appCategory.NewReadCategoryUseCase(readCategoryService)
+	writeCategoryUseCase := appCategory.NewWriteCategoryUseCase(writeCategoryService)
 
 	// Handler´s
 	readProductHandler := controller.NewReadProductHandler(readProductUseCase)
 	writeProductHandler := controller.NewWriteProductHandler(writeProductUseCase)
-	categoryHandler := catController.NewCategoryController(categoryCreateUseCase, categoryListUseCase)
+	readCategoryHandler := catController.NewReadCategoryHandler(writeCategoryUseCase, readCategegoryUseCase)
+	writeCategoryHandler := catController.NewWriteCategoryHandler(writeCategoryUseCase)
 
 	// Routes
 	readProductHandler.ReadProductRouter(r)
