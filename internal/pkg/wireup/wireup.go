@@ -46,5 +46,6 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Routes
 	readProductHandler.ReadProductRouter(r)
 	writeProductHandler.WriteProductRouter(r)
-	categoryHandler.CategoryRouter(r)
+	readCategoryHandler.CategoryRouter(r)
+	writeCategoryHandler.WriteCategoryRouter(r)
 }
