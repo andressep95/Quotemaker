@@ -2,6 +2,7 @@ package utiltest
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"math/rand"
 	"testing"
@@ -19,11 +20,11 @@ import (
 func SetupTestDB(t *testing.T) *sql.DB {
 	config, err := config.LoadConfig("../../../../..")
 	if err != nil {
-		log.Fatal("cannot load the config: ", err)
+		fmt.Printf("Error loading config: %v\n", err)
 	}
-
 	database, err := db.DBConnection(config.DBDriver, config.DBSource)
 	if err != nil {
+		fmt.Printf("Error connecting to database: %v\n", err)
 		log.Fatal("cannot connect to database:", err)
 	}
 	return database
