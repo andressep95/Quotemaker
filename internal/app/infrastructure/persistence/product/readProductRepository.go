@@ -1,13 +1,15 @@
-package product
+package persistence
 
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
 )
 
-type sqlProductRepository struct {
+type readProductRepository struct {
 	db *sql.DB
 }
 
@@ -20,7 +22,7 @@ const listProductsByNameQuery = `
     `
 
 // ListProductsByDescription implements domain.ProductRepository.
-func (r *sqlProductRepository) ListProductsByName(ctx context.Context, limit int, offset int, name string) ([]domain.Product, error) {
+func (r *readProductRepository) ListProductsByName(ctx context.Context, limit int, offset int, name string) ([]domain.Product, error) {
 	var products []domain.Product
 	rows, err := r.db.QueryContext(ctx, listProductsByNameQuery, "%"+name+"%", limit, offset)
 	if err != nil {
@@ -60,7 +62,7 @@ const listProductsByCategoryQuery = `
     `
 
 // ListProductByCategory implements domain.ProductRepository.
-func (r *sqlProductRepository) ListProductByCategory(ctx context.Context, categoryID int) ([]domain.Product, error) {
+func (r *readProductRepository) ListProductByCategory(ctx context.Context, categoryID int) ([]domain.Product, error) {
 	var products []domain.Product
 	rows, err := r.db.QueryContext(ctx, listProductsByCategoryQuery, categoryID)
 	if err != nil {
@@ -99,7 +101,7 @@ ORDER BY id
 LIMIT $1 OFFSET $2;
 `
 
-func (r *sqlProductRepository) ListProducts(ctx context.Context, limit, offset int) ([]domain.Product, error) {
+func (r *readProductRepository) ListProducts(ctx context.Context, limit, offset int) ([]domain.Product, error) {
 	rows, err := r.db.QueryContext(ctx, listProductsQuery, limit, offset)
 	if err != nil {
 		return nil, err
@@ -124,49 +126,10 @@ func (r *sqlProductRepository) ListProducts(ctx context.Context, limit, offset i
 		products = append(products, i)
 	}
 
-	// Verificar por errores al finalizar la iteración
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 	return products, nil
-}
-
-const saveProductQuery = `
-INSERT INTO product (name, category_id, length, price, weight, code, is_available)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, name, category_id, length, price, weight, code, is_available;
-`
-
-func (r *sqlProductRepository) SaveProduct(ctx context.Context, args domain.Product) (domain.Product, error) {
-	row := r.db.QueryRowContext(ctx, saveProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable)
-	var i domain.Product
-
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.CategoryID,
-		&i.Length,
-		&i.Price,
-		&i.Weight,
-		&i.Code,
-		&i.IsAvailable,
-	)
-	return i, err
-}
-
-const updateProductQuery = `
-UPDATE product
-SET name = $1, category_id = $2, length = $3, price = $4, weight = $5, code = $6, is_available = $7
-WHERE id = $8;
-`
-
-// UpdateProduct implements ports.ProductRepository.
-func (r *sqlProductRepository) UpdateProduct(ctx context.Context, args domain.Product) error {
-	_, err := r.db.ExecContext(ctx, updateProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable, args.ID)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 const getProductByIDQuery = `
@@ -175,7 +138,7 @@ FROM product
 WHERE id = $1;
 `
 
-func (r *sqlProductRepository) GetProductByID(ctx context.Context, id int) (*domain.Product, error) {
+func (r *readProductRepository) GetProductByID(ctx context.Context, id int) (*domain.Product, error) {
 	row := r.db.QueryRowContext(ctx, getProductByIDQuery, id)
 	var i domain.Product
 
@@ -189,22 +152,17 @@ func (r *sqlProductRepository) GetProductByID(ctx context.Context, id int) (*dom
 		&i.Code,
 		&i.IsAvailable,
 	)
-
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("producto con ID %d no encontrado", id)
+		}
+		return nil, fmt.Errorf("error al recuperar el producto con ID %d: %w", id, err)
+	}
 	return &i, err
 }
 
-const deleteProductQuery = `
-DELETE FROM product
-WHERE id = $1;
-`
-
-func (r *sqlProductRepository) DeleteProduct(ctx context.Context, id int) error {
-	_, err := r.db.ExecContext(ctx, deleteProductQuery, id)
-	return err
-}
-
-func NewProductRepository(db *sql.DB) domain.ProductRepository {
-	return &sqlProductRepository{
+func NewReadProductRepository(db *sql.DB) domain.ReadProductRepository {
+	return &readProductRepository{
 		db: db,
 	}
 }

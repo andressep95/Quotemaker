@@ -1,19 +1,3 @@
--- Table seller
-CREATE TABLE IF NOT EXISTS seller (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
-);
-
--- Table customer
-CREATE TABLE IF NOT EXISTS customer (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    rut VARCHAR(255), 
-    address VARCHAR(255),
-    phone VARCHAR(255),
-    email VARCHAR(255)
-);
-
 -- Table category
 CREATE TABLE IF NOT EXISTS category (
     id SERIAL PRIMARY KEY,
@@ -36,17 +20,13 @@ CREATE TABLE IF NOT EXISTS product (
 -- Table quotation
 CREATE TABLE IF NOT EXISTS quotation (
     id SERIAL PRIMARY KEY,
-    seller_id INT,
-    customer_id INT,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     total_price FLOAT,
     is_purchased BOOLEAN DEFAULT FALSE,
     purchased_at TIMESTAMP,  -- Fecha de compra
     is_delivered BOOLEAN DEFAULT FALSE,
-    delivered_at TIMESTAMP,  -- Fecha de entrega
-    FOREIGN KEY (seller_id) REFERENCES seller(id),
-    FOREIGN KEY (customer_id) REFERENCES customer(id)
+    delivered_at TIMESTAMP  -- Fecha de entrega
 );
 
 -- Table quote_product

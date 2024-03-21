@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// Crea la conexión a la base de datos
-	db, err := db.NewDBConnection(config.DBDriver, config.DBSource)
+	db, err := db.DBConnection(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatalf("No se pudo establecer la conexión a la base de datos: %v", err)
 	}

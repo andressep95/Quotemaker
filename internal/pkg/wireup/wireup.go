@@ -3,39 +3,49 @@ package wireup
 import (
 	"database/sql"
 
-	catCases "github.com/Andressep/QuoteMaker/internal/app/application/category"
-	prodCases "github.com/Andressep/QuoteMaker/internal/app/application/product"
-	catService "github.com/Andressep/QuoteMaker/internal/app/domain/category"
-	prodService "github.com/Andressep/QuoteMaker/internal/app/domain/product"
-	"github.com/gin-gonic/gin"
+	appCategory "github.com/Andressep/QuoteMaker/internal/app/application/category"
+	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
 
-	catRep "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/category"
-	prodRep "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/product"
-	catContrl "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/category"
-	prodContrl "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
+	categoryServ "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+
+	categoryRepo "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/category"
+	persistence "github.com/Andressep/QuoteMaker/internal/app/infrastructure/persistence/product"
+
+	catController "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/category"
+	controller "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
+
+	"github.com/gin-gonic/gin"
 )
 
 func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Repository´s
-	categoryRepo := catRep.NewCategoryRepository(db)
-	productRepo := prodRep.NewProductRepository(db)
+	readProductRepo := persistence.NewReadProductRepository(db)
+	writeProductRepo := persistence.NewWriteProductRepository(db)
+	readCategoryRepo := categoryRepo.NewReadCategoryRepository(db)
+	writeCategoryRepo := categoryRepo.NewWriteCategoryRepository(db)
 
 	// Services´s
-	categoryService := catService.NewCategoryService(categoryRepo)
-	productService := prodService.NewProductService(productRepo, categoryRepo)
+	readProductService := domain.NewReadProductService(readProductRepo, readCategoryRepo)
+	writeProductService := domain.NewWriteProductService(writeProductRepo, writeCategoryRepo, readCategoryRepo)
+	readCategoryService := categoryServ.NewReadCategoryService(readCategoryRepo)
+	writeCategoryService := categoryServ.NewWriteCategoryService(writeCategoryRepo)
 
 	// Usecase´s
-	createCategoryUseCase := catCases.NewCreateCategory(categoryService)
-	listCategoryUseCase := catCases.NewListCategory(categoryService)
-	createProductUseCase := prodCases.NewCreateProduct(productService)
-	listProductUseCase := prodCases.NewListProduct(productService)
+	readProductUseCase := application.NewReadProductUseCase(readProductService)
+	writeProductUseCase := application.NewWriteProductUseCase(writeProductService, readProductService)
+	readCategegoryUseCase := appCategory.NewReadCategoryUseCase(readCategoryService)
+	writeCategoryUseCase := appCategory.NewWriteCategoryUseCase(writeCategoryService)
 
-	// Controller´s
-	categoryController := catContrl.NewCategoryController(createCategoryUseCase, listCategoryUseCase)
-	productController := prodContrl.NewProductController(createProductUseCase, listProductUseCase)
+	// Handler´s
+	readProductHandler := controller.NewReadProductHandler(readProductUseCase)
+	writeProductHandler := controller.NewWriteProductHandler(writeProductUseCase)
+	readCategoryHandler := catController.NewReadCategoryHandler(writeCategoryUseCase, readCategegoryUseCase)
+	writeCategoryHandler := catController.NewWriteCategoryHandler(writeCategoryUseCase)
 
 	// Routes
-	productController.ProductRouter(r)
-	categoryController.CategoryRouter(r)
-
+	readProductHandler.ReadProductRouter(r)
+	writeProductHandler.WriteProductRouter(r)
+	readCategoryHandler.CategoryRouter(r)
+	writeCategoryHandler.WriteCategoryRouter(r)
 }
