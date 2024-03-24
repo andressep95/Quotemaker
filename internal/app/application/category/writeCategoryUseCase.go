@@ -2,8 +2,10 @@ package application
 
 import (
 	"context"
+	"net/http"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/response"
 )
 
 type CreateCategoryRequest struct {
@@ -14,17 +16,33 @@ type CreateCategoryResponse struct {
 	CategoryName string `json:"category_name"`
 }
 
-func (w *WriteCategoryUseCase) RegisterCategory(ctx context.Context, request *CreateCategoryRequest) (*CreateCategoryResponse, error) {
+func (w *WriteCategoryUseCase) RegisterCategory(ctx context.Context, request *CreateCategoryRequest) (*response.Response, error) {
 	category := &domain.Category{
 		CategoryName: request.CategoryName,
 	}
 	createdCategory, err := w.writeCategoryService.CreateCategory(ctx, *category)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error",
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			ErrorCode:  "category_creation_failed",
+			Errors: []response.ErrorDetail{
+				{Message: err.Error()},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
-	return &CreateCategoryResponse{
-		ID:           createdCategory.ID,
-		CategoryName: createdCategory.CategoryName,
+	return &response.Response{
+		Status:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "Category created successfully",
+		Data: response.ResponseData{
+			Result: &CreateCategoryResponse{
+				ID:           createdCategory.ID,
+				CategoryName: createdCategory.CategoryName,
+			},
+		},
 	}, nil
 }
 

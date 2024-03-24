@@ -2,8 +2,10 @@ package application
 
 import (
 	"context"
+	"net/http"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/response"
 )
 
 // CreateProductRequest define los datos de entrada para crear un producto.
@@ -42,7 +44,7 @@ type DeleteProductResponse struct {
 	Message string `json:"message"`
 }
 
-func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *CreateProductRequest) (*CreateProductResponse, error) {
+func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *CreateProductRequest) (*response.Response, error) {
 	product := &domain.Product{
 		Name:        request.Name,
 		CategoryID:  request.CategoryID,
@@ -54,20 +56,44 @@ func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *Crea
 	}
 	createdProduct, err := w.writeProductService.CreateProduct(ctx, *product)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error creating product",
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			ErrorCode:  "internal_server_error",
+			Errors: []response.ErrorDetail{
+				{Message: err.Error()},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
-	return &CreateProductResponse{
-		ID:         createdProduct.ID,
-		Name:       createdProduct.Name,
-		CategoryID: createdProduct.CategoryID,
+	return &response.Response{
+		Status:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "Product created successfully",
+		Data: response.ResponseData{
+			Result: &CreateProductResponse{
+				ID:         createdProduct.ID,
+				Name:       createdProduct.Name,
+				CategoryID: createdProduct.CategoryID,
+			},
+		},
 	}, nil
 }
-
-func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *UpdateProductRequest) (*CreateProductResponse, error) {
+func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *UpdateProductRequest) (*response.Response, error) {
 	// Primero, obtén el producto existente que se desea modificar
 	existingProduct, err := w.readProductService.GetProductByID(ctx, request.ID)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error searching the product by ID",
+			StatusCode: http.StatusNotFound,
+			Message:    err.Error(),
+			ErrorCode:  "product not found",
+			Errors: []response.ErrorDetail{
+				{Message: "No product found with the provided ID"},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
 
 	// Actualiza los campos del producto existente con los valores proporcionados en la solicitud
@@ -82,29 +108,58 @@ func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *Update
 	// Llama al servicio de dominio para modificar el producto en la base de datos
 	updatedProduct, err := w.writeProductService.UpdateProduct(ctx, *existingProduct)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error updating product",
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			ErrorCode:  "internal_server_error",
+			Errors: []response.ErrorDetail{
+				{Message: err.Error()},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
 
 	// Devuelve una respuesta con los detalles del producto modificado
-	return &CreateProductResponse{
-		ID:         updatedProduct.ID,
-		Name:       updatedProduct.Name,
-		CategoryID: updatedProduct.CategoryID,
+	return &response.Response{
+		Status:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "Product created successfully",
+		Data: response.ResponseData{
+			Result: &CreateProductResponse{
+				ID:         updatedProduct.ID,
+				Name:       updatedProduct.Name,
+				CategoryID: updatedProduct.CategoryID,
+			},
+		},
 	}, nil
 }
 
 // Execute ejecuta la lógica del caso de uso de eliminar un producto.
-func (w *WriteProductUseCase) DeleteProduct(ctx context.Context, request *DeleteProductRequest) (*DeleteProductResponse, error) {
-	// Llama al servicio de dominio para eliminar el producto.
+func (w *WriteProductUseCase) DeleteProduct(ctx context.Context, request *DeleteProductRequest) (*response.Response, error) {
 	err := w.writeProductService.DeleteProduct(ctx, request.ID)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error",
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			ErrorCode:  "product_deletion_failed",
+			Errors: []response.ErrorDetail{
+				{Message: err.Error()},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
 
-	// Puedes agregar lógica adicional aquí si es necesario.
-
-	return &DeleteProductResponse{
-		Message: "Product deleted successfully",
+	return &response.Response{
+		Status:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "Product deleted successfully",
+		Data: response.ResponseData{
+			Result: &DeleteProductResponse{
+				Message: "Product deleted successfully",
+			},
+		},
 	}, nil
 }
 

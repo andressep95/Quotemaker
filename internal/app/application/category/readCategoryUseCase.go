@@ -2,8 +2,10 @@ package application
 
 import (
 	"context"
+	"net/http"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/response"
 )
 
 type ReadCategoryUseCase struct {
@@ -28,10 +30,19 @@ type CategoryDTO struct {
 	CategoryName string `json:"category_name"`
 }
 
-func (l *ReadCategoryUseCase) ListCategorys(ctx context.Context, request *ListCategorysRequest) (*ListCategorysResponse, error) {
+func (l *ReadCategoryUseCase) ListCategorys(ctx context.Context, request *ListCategorysRequest) (*response.Response, error) {
 	categorys, err := l.readCategoryService.ListCategorys(ctx, request.Limit, request.Offset)
 	if err != nil {
-		return nil, err
+		return &response.Response{
+			Status:     "error",
+			StatusCode: http.StatusInternalServerError,
+			Message:    err.Error(),
+			ErrorCode:  "category_list_failed",
+			Errors: []response.ErrorDetail{
+				{Message: err.Error()},
+			},
+			Data: response.ResponseData{},
+		}, nil
 	}
 
 	categoryDTOs := make([]CategoryDTO, len(categorys))
@@ -42,7 +53,14 @@ func (l *ReadCategoryUseCase) ListCategorys(ctx context.Context, request *ListCa
 		}
 	}
 
-	return &ListCategorysResponse{
-		Category: categoryDTOs,
+	return &response.Response{
+		Status:     "success",
+		StatusCode: http.StatusOK,
+		Message:    "Categories listed successfully",
+		Data: response.ResponseData{
+			Result: &ListCategorysResponse{
+				Category: categoryDTOs,
+			},
+		},
 	}, nil
 }
