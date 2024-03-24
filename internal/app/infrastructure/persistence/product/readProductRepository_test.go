@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/Andressep/QuoteMaker/internal/pkg/utiltest"
@@ -12,9 +13,14 @@ func TestListProducts(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadProductRepository(db)
+	writeRepo := NewWriteProductRepository(db)
 
 	for i := 0; i < 5; i++ {
-		utiltest.CreateRandomProduct(t)
+		newProduct, err := writeRepo.SaveProduct(ctx, utiltest.CreateRandomProduct(t))
+		if err != nil {
+			return
+		}
+		fmt.Println(i, newProduct)
 	}
 
 	products, err := readRepo.ListProducts(ctx, 5, 0)

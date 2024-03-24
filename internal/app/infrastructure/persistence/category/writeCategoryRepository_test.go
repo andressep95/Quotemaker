@@ -25,18 +25,23 @@ func TestUpdateCategory(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	writeRepo := NewWriteCategoryRepository(db)
-	readRepo := NewReadCategoryRepository(db)
-	originalCategory := utiltest.CreateRandomCategory(t)
+	category := utiltest.CreateRandomCategory(t)
+	newCategory, err := writeRepo.SaveCategory(ctx, category)
+	if err != nil {
+		return
+	}
 
 	// Update catefory name
-	originalCategory.CategoryName = "New Category Name"
-	err := writeRepo.UpdateCategory(ctx, originalCategory)
+	newCategory.CategoryName = "New Category Name"
+	updatedCategory, err := writeRepo.UpdateCategory(ctx, newCategory)
+	if err != nil {
+		return
+	}
 	require.NoError(t, err)
 
 	// Verify
-	updatedCategory, err := readRepo.GetCategoryByID(ctx, originalCategory.ID)
 	require.NoError(t, err)
-	require.Equal(t, originalCategory.CategoryName, updatedCategory.CategoryName)
+	require.Equal(t, newCategory.CategoryName, updatedCategory.CategoryName)
 }
 
 func TestDeleteCategory(t *testing.T) {

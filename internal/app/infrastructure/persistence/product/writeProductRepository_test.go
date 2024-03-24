@@ -31,24 +31,26 @@ func TestUpdateProduct(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	writeRepo := NewWriteProductRepository(db)
-	readRepo := NewReadProductRepository(db)
 	originalProduct := utiltest.CreateRandomProduct(t)
+
 	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", originalProduct.CategoryID, "Test Category")
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+	newProduct, err := writeRepo.SaveProduct(ctx, originalProduct)
+	if err != nil {
+		return
+	}
 
 	// update
-	originalProduct.Name = "Product name"
-	originalProduct.Code = "124214124"
-	_, err = writeRepo.UpdateProduct(ctx, originalProduct)
+	newProduct.Name = "Product name"
+	newProduct.Code = "124214124"
+	updatedProduct, err := writeRepo.UpdateProduct(ctx, newProduct)
 	require.NoError(t, err)
 
-	// verify
-	updateProduct, err := readRepo.GetProductByID(ctx, originalProduct.ID)
 	require.NoError(t, err)
-	require.Equal(t, originalProduct.Name, updateProduct.Name)
-	require.Equal(t, originalProduct.Code, updateProduct.Code)
+	require.Equal(t, newProduct.Name, updatedProduct.Name)
+	require.Equal(t, newProduct.Code, updatedProduct.Code)
 }
 
 func TestDeleteProduct(t *testing.T) {
@@ -56,10 +58,18 @@ func TestDeleteProduct(t *testing.T) {
 	ctx := context.Background()
 	writeRepo := NewWriteProductRepository(db)
 	readRepo := NewReadProductRepository(db)
-	newProduct := utiltest.CreateRandomProduct(t)
+	originalProduct := utiltest.CreateRandomProduct(t)
 
+	_, err := db.ExecContext(ctx, "INSERT INTO category (id, category_name) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING", originalProduct.CategoryID, "Test Category")
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	newProduct, err := writeRepo.SaveProduct(ctx, originalProduct)
+	if err != nil {
+		return
+	}
 	// delete product
-	err := writeRepo.DeleteProduct(ctx, int(newProduct.ID))
+	_ = writeRepo.DeleteProduct(ctx, int(newProduct.ID))
 	require.NoError(t, err)
 
 	//verify

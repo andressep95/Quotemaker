@@ -3,6 +3,8 @@ package persistence
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"log"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/category"
 )
@@ -36,12 +38,26 @@ WHERE id = $2;
 `
 
 // UpdateCategory implements ports.CategoryRepository.
-func (w *WriteCategoryRepository) UpdateCategory(ctx context.Context, category domain.Category) error {
-	_, err := w.db.ExecContext(ctx, updateCategoryQuery, category.CategoryName, category.ID)
+func (w *WriteCategoryRepository) UpdateCategory(ctx context.Context, category domain.Category) (domain.Category, error) {
+	tx, err := w.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return domain.Category{}, fmt.Errorf("could not begin transaction: %v", err)
 	}
-	return nil
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			log.Printf("transaction rolled back: %v", err)
+			return
+		}
+		tx.Commit()
+	}()
+
+	_, err = tx.ExecContext(ctx, updateCategoryQuery, category.CategoryName, category.ID)
+	if err != nil {
+		log.Printf("error updating the product: %v", err)
+		return domain.Category{}, err
+	}
+	return category, nil
 }
 
 const deleteCategoryQuery = `

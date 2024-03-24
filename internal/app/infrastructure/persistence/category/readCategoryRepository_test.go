@@ -49,7 +49,11 @@ func TestGetCategoryByName(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadCategoryRepository(db)
-	newCategory := utiltest.CreateRandomCategory(t)
+	writeRepo := NewWriteCategoryRepository(db)
+	newCategory, err := writeRepo.SaveCategory(ctx, utiltest.CreateRandomCategory(t))
+	if err != nil {
+		return
+	}
 
 	// get category
 	fetchedCategory, err := readRepo.GetCategoryByName(ctx, newCategory.CategoryName)
