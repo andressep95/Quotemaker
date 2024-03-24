@@ -23,12 +23,12 @@ type GetProductByIDRequest struct {
 }
 type GetProductByIDResponse struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
 	CategoryID  int     `json:"category_id"`
-	Length      float64 `json:"length"`
+	Code        string  `json:"code"`
+	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Weight      float64 `json:"weight"`
-	Code        string  `json:"code"`
+	Length      float64 `json:"length"`
 	IsAvailable bool    `json:"is_available"`
 }
 
@@ -50,12 +50,12 @@ type ListProductByCategoryRequest struct {
 
 type ProductDTO struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name"`
 	CategoryID  int     `json:"category_id"`
-	Length      float64 `json:"length"`
+	Code        string  `json:"code"`
+	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Weight      float64 `json:"weight"`
-	Code        string  `json:"code"`
+	Length      float64 `json:"length"`
 	IsAvailable bool    `json:"is_available"`
 }
 
@@ -79,12 +79,12 @@ func (r *ReadProductUseCase) ListProductByName(ctx context.Context, request *Lis
 	for i, p := range products {
 		productDTOs[i] = ProductDTO{
 			ID:          p.ID,
-			Name:        p.Name,
 			CategoryID:  p.CategoryID,
-			Length:      p.Length,
+			Code:        p.Code,
+			Description: p.Description,
 			Price:       p.Price,
 			Weight:      p.Weight,
-			Code:        p.Code,
+			Length:      p.Length,
 			IsAvailable: p.IsAvailable,
 		}
 	}
@@ -120,12 +120,12 @@ func (r *ReadProductUseCase) ListProductByCategory(ctx context.Context, request 
 	for i, p := range products {
 		productDTOs[i] = ProductDTO{
 			ID:          p.ID,
-			Name:        p.Name,
 			CategoryID:  p.CategoryID,
-			Length:      p.Length,
+			Code:        p.Code,
+			Description: p.Description,
 			Price:       p.Price,
 			Weight:      p.Weight,
-			Code:        p.Code,
+			Length:      p.Length,
 			IsAvailable: p.IsAvailable,
 		}
 	}
@@ -158,12 +158,12 @@ func (r *ReadProductUseCase) GetProductByID(ctx context.Context, request *GetPro
 
 	productDTO := GetProductByIDResponse{
 		ID:          product.ID,
-		Name:        product.Name,
 		CategoryID:  product.CategoryID,
-		Length:      product.Length,
+		Code:        product.Code,
+		Description: product.Description,
 		Price:       product.Price,
 		Weight:      product.Weight,
-		Code:        product.Code,
+		Length:      product.Length,
 		IsAvailable: product.IsAvailable,
 	}
 

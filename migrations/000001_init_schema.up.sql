@@ -7,12 +7,12 @@ CREATE TABLE IF NOT EXISTS category (
 -- Table product
 CREATE TABLE IF NOT EXISTS product (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
     category_id INT,
-    length FLOAT, 
+    code VARCHAR(255),
+    description VARCHAR(255) NOT NULL,
     price FLOAT,
     weight FLOAT,
-    code VARCHAR(255),
+    length FLOAT, 
     is_available BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (category_id) REFERENCES category(id)
 );
@@ -43,7 +43,8 @@ CREATE TABLE IF NOT EXISTS quote_product (
 -- Indexes
 CREATE INDEX idx_category_name ON category (category_name);
 
-CREATE INDEX idx_product_name ON product (name);
+CREATE INDEX idx_product_name ON product (description);
+CREATE INDEX idx_category_id ON product (category_id);
 CREATE INDEX idx_product_code ON product (code);
 CREATE INDEX idx_product_price ON product (price);
 

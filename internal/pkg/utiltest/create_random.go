@@ -34,7 +34,7 @@ func CreateRandomProduct(t *testing.T) domainProd.Product {
 	rand.Seed(time.Now().UnixNano())
 
 	product := domainProd.Product{
-		Name:        "Product-" + util.RandomString(8),
+		Description: "Product-" + util.RandomString(8),
 		CategoryID:  util.RandomInt(1, 100),
 		Price:       util.RandomFloat(100, 500),
 		Length:      util.RandomFloat(1, 6),

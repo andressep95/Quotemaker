@@ -14,9 +14,9 @@ type writeProductRepository struct {
 }
 
 const saveProductQuery = `
-INSERT INTO product (name, category_id, length, price, weight, code, is_available)
+INSERT INTO product (category_id, code, description, price, weight, length, is_available)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, name, category_id, length, price, weight, code, is_available;
+RETURNING id, category_id, code, description, price, weight, length, is_available;
 `
 
 func (r *writeProductRepository) SaveProduct(ctx context.Context, args domain.Product) (domain.Product, error) {
@@ -32,17 +32,17 @@ func (r *writeProductRepository) SaveProduct(ctx context.Context, args domain.Pr
 		tx.Commit()
 	}()
 
-	row := tx.QueryRowContext(ctx, saveProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable)
+	rows := tx.QueryRowContext(ctx, saveProductQuery, args.CategoryID, args.Code, args.Description, args.Price, args.Weight, args.Length, args.IsAvailable)
 	var product domain.Product
 
-	err = row.Scan(
+	err = rows.Scan(
 		&product.ID,
-		&product.Name,
 		&product.CategoryID,
-		&product.Length,
+		&product.Code,
+		&product.Description,
 		&product.Price,
 		&product.Weight,
-		&product.Code,
+		&product.Length,
 		&product.IsAvailable,
 	)
 	if err != nil {
@@ -54,7 +54,7 @@ func (r *writeProductRepository) SaveProduct(ctx context.Context, args domain.Pr
 
 const updateProductQuery = `
 UPDATE product
-SET name = $1, category_id = $2, length = $3, price = $4, weight = $5, code = $6, is_available = $7
+SET category_id = $1, code = $2, description = $3, price = $4, weight = $5, length = $6, is_available = $7
 WHERE id = $8;
 `
 
@@ -72,7 +72,7 @@ func (r *writeProductRepository) UpdateProduct(ctx context.Context, args domain.
 		tx.Commit()
 	}()
 
-	_, err = tx.ExecContext(ctx, updateProductQuery, args.Name, args.CategoryID, args.Length, args.Price, args.Weight, args.Code, args.IsAvailable, args.ID)
+	_, err = tx.ExecContext(ctx, updateProductQuery, args.CategoryID, args.Code, args.Description, args.Price, args.Weight, args.Length, args.IsAvailable, args.ID)
 	if err != nil {
 		log.Printf("error updating the product: %v", err)
 		return domain.Product{}, err

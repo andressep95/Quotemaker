@@ -10,30 +10,30 @@ import (
 
 // CreateProductRequest define los datos de entrada para crear un producto.
 type CreateProductRequest struct {
-	Name        string  `json:"name"`
 	CategoryID  int     `json:"category_id"`
-	Length      float64 `json:"length"`
+	Code        string  `json:"code"`
+	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 	Weight      float64 `json:"weight"`
-	Code        string  `json:"code"`
+	Length      float64 `json:"length"`
 	IsAvailable bool    `json:"is_available"`
 }
 type UpdateProductRequest struct {
 	ID          int     `json:"id"`
-	Name        string  `json:"name,omitempty"`
 	CategoryID  int     `json:"category_id,omitempty"`
-	Length      float64 `json:"length,omitempty"`
+	Code        string  `json:"code,omitempty"`
+	Description string  `json:"description,omitempty"`
 	Price       float64 `json:"price,omitempty"`
 	Weight      float64 `json:"weight,omitempty"`
-	Code        string  `json:"code,omitempty"`
+	Length      float64 `json:"length,omitempty"`
 	IsAvailable bool    `json:"is_available,omitempty"`
 }
 
 // CreateProductResponse define los datos de salida tras crear un producto.
 type CreateProductResponse struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	CategoryID int    `json:"category_id"`
+	ID          int    `json:"id"`
+	Description string `json:"description"`
+	CategoryID  int    `json:"category_id"`
 }
 
 type DeleteProductRequest struct {
@@ -46,12 +46,12 @@ type DeleteProductResponse struct {
 
 func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *CreateProductRequest) (*response.Response, error) {
 	product := &domain.Product{
-		Name:        request.Name,
 		CategoryID:  request.CategoryID,
-		Length:      request.Length,
+		Code:        request.Code,
+		Description: request.Description,
 		Price:       request.Price,
 		Weight:      request.Weight,
-		Code:        request.Code,
+		Length:      request.Length,
 		IsAvailable: request.IsAvailable,
 	}
 	createdProduct, err := w.writeProductService.CreateProduct(ctx, *product)
@@ -73,9 +73,9 @@ func (w *WriteProductUseCase) RegisterProduct(ctx context.Context, request *Crea
 		Message:    "Product created successfully",
 		Data: response.ResponseData{
 			Result: &CreateProductResponse{
-				ID:         createdProduct.ID,
-				Name:       createdProduct.Name,
-				CategoryID: createdProduct.CategoryID,
+				ID:          createdProduct.ID,
+				Description: createdProduct.Description,
+				CategoryID:  createdProduct.CategoryID,
 			},
 		},
 	}, nil
@@ -97,12 +97,12 @@ func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *Update
 	}
 
 	// Actualiza los campos del producto existente con los valores proporcionados en la solicitud
-	existingProduct.Name = request.Name
 	existingProduct.CategoryID = request.CategoryID
-	existingProduct.Length = request.Length
+	existingProduct.Code = request.Code
+	existingProduct.Description = request.Description
 	existingProduct.Price = request.Price
 	existingProduct.Weight = request.Weight
-	existingProduct.Code = request.Code
+	existingProduct.Length = request.Length
 	existingProduct.IsAvailable = request.IsAvailable
 
 	// Llama al servicio de dominio para modificar el producto en la base de datos
@@ -127,9 +127,9 @@ func (w *WriteProductUseCase) ModifyProduct(ctx context.Context, request *Update
 		Message:    "Product created successfully",
 		Data: response.ResponseData{
 			Result: &CreateProductResponse{
-				ID:         updatedProduct.ID,
-				Name:       updatedProduct.Name,
-				CategoryID: updatedProduct.CategoryID,
+				ID:          updatedProduct.ID,
+				Description: updatedProduct.Description,
+				CategoryID:  updatedProduct.CategoryID,
 			},
 		},
 	}, nil

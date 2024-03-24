@@ -23,7 +23,7 @@ func TestSaveProduct(t *testing.T) {
 	savedProduct, err := writeRepo.SaveProduct(ctx, product)
 	require.NoError(t, err)
 	require.NotEmpty(t, savedProduct.ID)
-	require.Equal(t, product.Name, savedProduct.Name)
+	require.Equal(t, product.Description, savedProduct.Description)
 	require.Equal(t, product.IsAvailable, savedProduct.IsAvailable)
 }
 
@@ -43,13 +43,13 @@ func TestUpdateProduct(t *testing.T) {
 	}
 
 	// update
-	newProduct.Name = "Product name"
+	newProduct.Description = "Product name"
 	newProduct.Code = "124214124"
 	updatedProduct, err := writeRepo.UpdateProduct(ctx, newProduct)
 	require.NoError(t, err)
 
 	require.NoError(t, err)
-	require.Equal(t, newProduct.Name, updatedProduct.Name)
+	require.Equal(t, newProduct.Description, updatedProduct.Description)
 	require.Equal(t, newProduct.Code, updatedProduct.Code)
 }
 

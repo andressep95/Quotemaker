@@ -2,11 +2,11 @@ package domain
 
 type Product struct {
 	ID          int     `db:"id"`
-	Name        string  `db:"name"`
 	CategoryID  int     `db:"category_id"`
-	Length      float64 `db:"length"`
+	Code        string  `db:"code"`
+	Description string  `db:"name"`
 	Price       float64 `db:"price"`
 	Weight      float64 `db:"weight"`
-	Code        string  `db:"code"`
+	Length      float64 `db:"length"`
 	IsAvailable bool    `db:"is_available"`
 }

@@ -25,7 +25,7 @@ func NewWriteProductService(writeProductRepo WriteProductRepository, writeCatego
 }
 
 func (s *WriteProductService) CreateProduct(ctx context.Context, product Product) (*Product, error) {
-	if product.Name == "" {
+	if product.Description == "" {
 		return nil, errors.New("el nombre del producto no puede estar vacío")
 	}
 	if product.Price <= 0 {
@@ -81,7 +81,7 @@ func (s *WriteProductService) UpdateProduct(ctx context.Context, product Product
 	if product.ID <= 0 {
 		return nil, errors.New("el ID del producto debe ser mayor que cero")
 	}
-	if product.Name == "" {
+	if product.Description == "" {
 		return nil, errors.New("el nombre del producto no puede estar vacío")
 	}
 	if product.Price < 0 {
