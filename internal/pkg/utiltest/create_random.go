@@ -10,6 +10,7 @@ import (
 
 	domainCat "github.com/Andressep/QuoteMaker/internal/app/domain/category"
 	domainProd "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	domain "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
 
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/config"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/db"
@@ -53,4 +54,34 @@ func CreateRandomCategory(t *testing.T) domainCat.Category {
 		CategoryName: util.RandomString(5),
 	}
 	return category
+}
+
+func CreateRandomQuoteProduct(t *testing.T) domain.QuoteProduct {
+	rand.Seed(time.Now().UnixNano())
+
+	quoteProduct := domain.QuoteProduct{
+		ProductID: util.RandomInt(1, 100),
+		Quantity:  util.RandomInt(1, 10),
+	}
+
+	return quoteProduct
+}
+
+func CreateRandomQuotation(t *testing.T) domain.Quotation {
+	var quoteProducts []domain.QuoteProduct
+	for i := 0; i < 5; i++ {
+		newQuoteProduct := CreateRandomQuoteProduct(t)
+		quoteProducts = append(quoteProducts, newQuoteProduct)
+	}
+
+	quotation := domain.Quotation{
+		ID:          util.RandomInt(1, 100),
+		CreatedAt:   time.Now(),
+		TotalPrice:  util.RandomFloat(100, 500),
+		IsPurchased: false,
+		IsDelivered: false,
+		Products:    quoteProducts,
+	}
+
+	return quotation
 }
