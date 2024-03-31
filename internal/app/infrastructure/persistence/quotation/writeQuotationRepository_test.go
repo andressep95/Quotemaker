@@ -50,3 +50,29 @@ func TestUpdateQuotation(t *testing.T) {
 	require.Equal(t, quotation.TotalPrice, updatedQuotation.TotalPrice)
 
 }
+
+func TestDeleteQuotation(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	defer db.Close()
+
+	// Asegura la creación del repositorio y cualquier otro setup necesario.
+	writeRepo := NewWriteQuotationRepository(db)
+	readRepo := NewReadQuotationRepository(db)
+
+	// Primero, crea una cotización para luego eliminarla.
+	quotation := utiltest.CreateRandomQuotation(t, db)
+	require.NotEmpty(t, quotation.ID, "La cotización debe tener un ID válido")
+
+	// Intenta eliminar la cotización creada.
+	err := writeRepo.DeleteQuotation(context.Background(), quotation.ID)
+	require.NoError(t, err, "No debería haber un error al eliminar una cotización existente")
+
+	// Verifica que la cotización se haya eliminado correctamente.
+	_, err = readRepo.GetQuotationByID(context.Background(), quotation.ID)
+	require.Error(t, err, "Debería haber un error al intentar obtener una cotización eliminada")
+
+	// Prueba eliminar una cotización que no existe y verifica el error.
+	fakeUUID := "123e4567-e89b-12d3-a456-426614174000"
+	err = writeRepo.DeleteQuotation(context.Background(), fakeUUID)
+	require.Error(t, err, "Debería haber un error al intentar eliminar una cotización que no existe")
+}

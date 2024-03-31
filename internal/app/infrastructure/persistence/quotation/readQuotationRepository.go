@@ -34,7 +34,7 @@ const getProductsForQuotationQuery = `
 	WHERE qp.quotation_id = $1;
 `
 
-func (r *readQuotationRepository) GetQuotationByID(ctx context.Context, id int) (*domain.Quotation, error) {
+func (r *readQuotationRepository) GetQuotationByID(ctx context.Context, id string) (*domain.Quotation, error) {
 	row := r.db.QueryRowContext(ctx, getQuotationByIDQuery, id)
 	var quotation domain.Quotation
 
@@ -50,7 +50,7 @@ func (r *readQuotationRepository) GetQuotationByID(ctx context.Context, id int) 
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("quotation with ID %d does not exist", id)
+			return nil, fmt.Errorf("quotation with ID %s does not exist", id)
 		}
 		return nil, fmt.Errorf("error querying quotation: %w", err)
 	}

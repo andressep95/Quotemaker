@@ -145,7 +145,7 @@ const deleteQuotationQuery = `
 	WHERE id = $1;
 `
 
-func (r *writeQuotationRepository) DeleteQuotation(ctx context.Context, id int) error {
+func (r *writeQuotationRepository) DeleteQuotation(ctx context.Context, id string) error {
 	result, err := r.db.ExecContext(ctx, deleteQuotationQuery, id)
 	if err != nil {
 		return fmt.Errorf("error deleting quotation: %w", err)
@@ -158,7 +158,7 @@ func (r *writeQuotationRepository) DeleteQuotation(ctx context.Context, id int) 
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("quotation with ID %d does not exist", id)
+		return fmt.Errorf("quotation with ID %s does not exist", id)
 	}
 
 	return nil

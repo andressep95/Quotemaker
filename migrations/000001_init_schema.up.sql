@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS quote_product (
     quotation_id UUID,
     product_id UUID,
     quantity FLOAT,
-    FOREIGN KEY (quotation_id) REFERENCES quotation(id),
+    FOREIGN KEY (quotation_id) REFERENCES quotation(id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
 -- Agrega una restricción única en la tabla quote_product
