@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
 	"github.com/gin-gonic/gin"
@@ -57,16 +56,13 @@ func (w *writeProductHandler) UpdateProductHandler(c *gin.Context) {
 }
 
 func (w *writeProductHandler) DeleteProductHandler(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid product ID"})
-		return
-	}
+	id := c.Param("id")
+
 	request := application.DeleteProductRequest{
 		ID: id,
 	}
 
-	_, err = w.writeProductUseCase.DeleteProduct(c.Request.Context(), &request)
+	_, err := w.writeProductUseCase.DeleteProduct(c.Request.Context(), &request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

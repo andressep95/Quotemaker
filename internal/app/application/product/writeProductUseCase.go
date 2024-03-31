@@ -10,7 +10,7 @@ import (
 
 // CreateProductRequest define los datos de entrada para crear un producto.
 type CreateProductRequest struct {
-	CategoryID  int     `json:"category_id"`
+	CategoryID  string  `json:"category_id"`
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
@@ -19,8 +19,8 @@ type CreateProductRequest struct {
 	IsAvailable bool    `json:"is_available"`
 }
 type UpdateProductRequest struct {
-	ID          int     `json:"id"`
-	CategoryID  int     `json:"category_id,omitempty"`
+	ID          string  `json:"id"`
+	CategoryID  string  `json:"category_id,omitempty"`
 	Code        string  `json:"code,omitempty"`
 	Description string  `json:"description,omitempty"`
 	Price       float64 `json:"price,omitempty"`
@@ -31,13 +31,13 @@ type UpdateProductRequest struct {
 
 // CreateProductResponse define los datos de salida tras crear un producto.
 type CreateProductResponse struct {
-	ID          int    `json:"id"`
+	ID          string `json:"id"`
 	Description string `json:"description"`
-	CategoryID  int    `json:"category_id"`
+	CategoryID  string `json:"category_id"`
 }
 
 type DeleteProductRequest struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 
 type DeleteProductResponse struct {

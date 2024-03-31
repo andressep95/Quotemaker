@@ -12,7 +12,7 @@ type CreateCategoryRequest struct {
 	CategoryName string `json:"category_name"`
 }
 type CreateCategoryResponse struct {
-	ID           int    `json:"id"`
+	ID           string `json:"id"`
 	CategoryName string `json:"category_name"`
 }
 

@@ -18,7 +18,7 @@ WHERE id = $1;
 `
 
 // GetCategoryByID implements ports.CategoryRepository.
-func (r *ReadCategoryRepository) GetCategoryByID(ctx context.Context, id int) (*domain.Category, error) {
+func (r *ReadCategoryRepository) GetCategoryByID(ctx context.Context, id string) (*domain.Category, error) {
 	row := r.db.QueryRowContext(ctx, getCategoryByIDQuery, id)
 	var i domain.Category
 

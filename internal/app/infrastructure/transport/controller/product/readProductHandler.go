@@ -9,26 +9,34 @@ import (
 )
 
 // ProductRouter registra las rutas para productos en Gin.
-func (r *readProductHanndler) ReadProductRouter(g *gin.Engine) {
+func (r *readProductHandler) ReadProductRouter(g *gin.Engine) {
 	g.GET("/products", r.ListProductsByNameHandler)
 	g.GET("/products/:id", r.GetProductByIDHandler)
 	g.GET("/products/category/:categoryName", r.ListProductsByCategoryHandler)
 }
 
-type readProductHanndler struct {
+type readProductHandler struct {
 	readProductUseCase *application.ReadProductUseCase
 }
 
-func NewReadProductHandler(readProductUseCase *application.ReadProductUseCase) *readProductHanndler {
-	return &readProductHanndler{
+func NewReadProductHandler(readProductUseCase *application.ReadProductUseCase) *readProductHandler {
+	return &readProductHandler{
 		readProductUseCase: readProductUseCase,
 	}
 }
 
-func (r *readProductHanndler) ListProductsByNameHandler(c *gin.Context) {
+func (r *readProductHandler) ListProductsByNameHandler(c *gin.Context) {
 	name := c.Query("name")
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil || limit <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit value"})
+		return
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil || offset < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid offset value"})
+		return
+	}
 
 	request := application.ListProductsRequest{
 		Name:   name,
@@ -45,7 +53,7 @@ func (r *readProductHanndler) ListProductsByNameHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (r *readProductHanndler) ListProductsByCategoryHandler(c *gin.Context) {
+func (r *readProductHandler) ListProductsByCategoryHandler(c *gin.Context) {
 	categoryName := c.Param("categoryName")
 
 	request := application.ListProductByCategoryRequest{
@@ -61,12 +69,10 @@ func (r *readProductHanndler) ListProductsByCategoryHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (r *readProductHanndler) GetProductByIDHandler(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid product ID"})
-		return
-	}
+func (r *readProductHandler) GetProductByIDHandler(c *gin.Context) {
+	id := c.Param("id")
+	// No conversion needed for UUID.
+
 	request := application.GetProductByIDRequest{
 		ID: id,
 	}

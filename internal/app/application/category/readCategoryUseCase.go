@@ -26,7 +26,7 @@ type ListCategorysResponse struct {
 	Category []CategoryDTO `json:"category"`
 }
 type CategoryDTO struct {
-	ID           int    `json:"id"`
+	ID           string `json:"id"`
 	CategoryName string `json:"category_name"`
 }
 

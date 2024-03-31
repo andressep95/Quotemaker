@@ -66,7 +66,7 @@ WHERE id = $1;
 `
 
 // DeleteCategory implements ports.CategoryRepository.
-func (w *WriteCategoryRepository) DeleteCategory(ctx context.Context, id int) error {
+func (w *WriteCategoryRepository) DeleteCategory(ctx context.Context, id string) error {
 	_, err := w.db.ExecContext(ctx, deleteCategoryQuery, id)
 	return err
 }

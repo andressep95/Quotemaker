@@ -1,13 +1,15 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Table category
 CREATE TABLE IF NOT EXISTS category (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     category_name VARCHAR(255) NOT NULL
 );
 
 -- Table product
 CREATE TABLE IF NOT EXISTS product (
-    id SERIAL PRIMARY KEY,
-    category_id INT,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    category_id UUID,
     code VARCHAR(255),
     description VARCHAR(255) NOT NULL,
     price FLOAT,
@@ -19,7 +21,7 @@ CREATE TABLE IF NOT EXISTS product (
 
 -- Table quotation
 CREATE TABLE IF NOT EXISTS quotation (
-    id SERIAL PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     total_price FLOAT,
@@ -31,13 +33,17 @@ CREATE TABLE IF NOT EXISTS quotation (
 
 -- Table quote_product
 CREATE TABLE IF NOT EXISTS quote_product (
-    id SERIAL PRIMARY KEY,
-    quotation_id INT,
-    product_id INT,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    quotation_id UUID,
+    product_id UUID,
     quantity FLOAT,
     FOREIGN KEY (quotation_id) REFERENCES quotation(id),
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
+-- Agrega una restricción única en la tabla quote_product
+ALTER TABLE quote_product
+ADD CONSTRAINT uk_quote_product_quotation_product UNIQUE (quotation_id, product_id);
+
 
 
 -- Indexes

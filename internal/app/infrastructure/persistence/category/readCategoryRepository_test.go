@@ -13,32 +13,23 @@ func TestGetCategoryByID(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadCategoryRepository(db)
-	writeRepo := NewWriteCategoryRepository(db)
-	newCategory := utiltest.CreateRandomCategory(t)
+	newCategory := utiltest.CreateRandomCategory(t, db)
 
-	saveCategory, err := writeRepo.SaveCategory(ctx, newCategory)
-	if err != nil {
-		return
-	}
-
-	fetchedCategory, err := readRepo.GetCategoryByID(ctx, saveCategory.ID)
+	fetchedCategory, err := readRepo.GetCategoryByID(ctx, newCategory.ID)
 	require.NoError(t, err)
 	require.NotNil(t, fetchedCategory)
-	require.Equal(t, saveCategory.ID, fetchedCategory.ID)
-	require.Equal(t, saveCategory.CategoryName, fetchedCategory.CategoryName)
+	require.Equal(t, newCategory.ID, fetchedCategory.ID)
+	require.Equal(t, newCategory.CategoryName, fetchedCategory.CategoryName)
 }
 
 func TestListCategorys(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadCategoryRepository(db)
-	writeRepo := NewWriteCategoryRepository(db)
 
 	for i := 0; i < 5; i++ {
-		newCategory, err := writeRepo.SaveCategory(ctx, utiltest.CreateRandomCategory(t))
-		if err != nil {
-			return
-		}
+		newCategory := utiltest.CreateRandomCategory(t, db)
+
 		fmt.Println(i, newCategory)
 	}
 
@@ -55,12 +46,7 @@ func TestGetCategoryByName(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadCategoryRepository(db)
-	writeRepo := NewWriteCategoryRepository(db)
-	newCategory, err := writeRepo.SaveCategory(ctx, utiltest.CreateRandomCategory(t))
-	if err != nil {
-		return
-	}
-
+	newCategory := utiltest.CreateRandomCategory(t, db)
 	// get category
 	fetchedCategory, err := readRepo.GetCategoryByName(ctx, newCategory.CategoryName)
 

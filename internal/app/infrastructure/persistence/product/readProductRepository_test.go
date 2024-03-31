@@ -13,13 +13,9 @@ func TestListProducts(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadProductRepository(db)
-	writeRepo := NewWriteProductRepository(db)
 
 	for i := 0; i < 5; i++ {
-		newProduct, err := writeRepo.SaveProduct(ctx, utiltest.CreateRandomProduct(t))
-		if err != nil {
-			return
-		}
+		newProduct := utiltest.CreateRandomProduct(t, db)
 		fmt.Println(i, newProduct)
 	}
 
@@ -38,7 +34,7 @@ func TestListProductsByName(t *testing.T) {
 	readRepo := NewReadProductRepository(db)
 
 	for i := 0; i < 20; i++ {
-		utiltest.CreateRandomProduct(t)
+		utiltest.CreateRandomProduct(t, db)
 	}
 
 	products, err := readRepo.ListProductsByName(ctx, 5, 0, "Pro")

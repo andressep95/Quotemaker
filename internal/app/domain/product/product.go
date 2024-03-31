@@ -1,8 +1,8 @@
 package domain
 
 type Product struct {
-	ID          int     `db:"id"`
-	CategoryID  int     `db:"category_id"`
+	ID          string  `db:"id"`
+	CategoryID  string  `db:"category_id"`
 	Code        string  `db:"code"`
 	Description string  `db:"name"`
 	Price       float64 `db:"price"`

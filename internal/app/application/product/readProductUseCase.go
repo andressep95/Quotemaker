@@ -19,11 +19,11 @@ func NewReadProductUseCase(readProductUseCase *domain.ReadProductService) *ReadP
 }
 
 type GetProductByIDRequest struct {
-	ID int `json:"id"`
+	ID string `json:"id"`
 }
 type GetProductByIDResponse struct {
-	ID          int     `json:"id"`
-	CategoryID  int     `json:"category_id"`
+	ID          string  `json:"id"`
+	CategoryID  string  `json:"category_id"`
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
@@ -49,8 +49,8 @@ type ListProductByCategoryRequest struct {
 }
 
 type ProductDTO struct {
-	ID          int     `json:"id"`
-	CategoryID  int     `json:"category_id"`
+	ID          string  `json:"id"`
+	CategoryID  string  `json:"category_id"`
 	Code        string  `json:"code"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`

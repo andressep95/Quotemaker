@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
@@ -13,51 +14,66 @@ type writeQuotationRepository struct {
 	db *sql.DB
 }
 
+func insertQuoteProductsInBatch(ctx context.Context, tx *sql.Tx, quotationID string, products []domain.QuoteProduct) error {
+	if len(products) == 0 {
+		return nil // No products to insert
+	}
+
+	valueStrings := make([]string, 0, len(products))
+	valueArgs := make([]interface{}, 0, len(products)*3) // 3 fields per product
+	for i, qp := range products {
+		valueStrings = append(valueStrings, fmt.Sprintf("($%d, $%d, $%d)", i*3+1, i*3+2, i*3+3))
+		valueArgs = append(valueArgs, quotationID, qp.ProductID, qp.Quantity)
+	}
+
+	stmt := fmt.Sprintf("INSERT INTO quote_product (quotation_id, product_id, quantity) VALUES %s", strings.Join(valueStrings, ","))
+	_, err := tx.ExecContext(ctx, stmt, valueArgs...)
+	return err
+}
+
 const insertQuotationQuery = `
-		INSERT INTO quotation (created_at, total_price)
-		VALUES ($1, $2)
+		INSERT INTO quotation (created_at, total_price, is_purchased, is_delivered)
+		VALUES ($1, $2, $3, $4)
 		RETURNING id, created_at, total_price;
-	`
-const insertProductQuery = `
-		INSERT INTO quote_product (quotation_id, product_id, quantity)
-		VALUES ($1, $2, $3);
 	`
 
 func (r *writeQuotationRepository) SaveQuotation(ctx context.Context, args domain.Quotation) (domain.Quotation, error) {
+	var err error
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.Quotation{}, err
 	}
 
 	defer func() {
-		if err != nil {
+		// Si err no es nil al final, hacemos rollback
+		if p := recover(); p != nil || err != nil {
 			tx.Rollback()
+		} else {
+			err = tx.Commit()
 		}
 	}()
 
+	// Se crean valores predeterminados para los campos que pueden ser nil
+	now := time.Now()
 	quotation := domain.Quotation{
-		CreatedAt:  time.Now(),
-		TotalPrice: args.TotalPrice,
-		Products:   args.Products,
+		CreatedAt:   now,
+		TotalPrice:  args.TotalPrice,
+		IsPurchased: args.IsPurchased,
+		IsDelivered: args.IsDelivered,
+		Products:    args.Products,
 	}
 
-	row := tx.QueryRowContext(ctx, insertQuotationQuery, quotation.TotalPrice)
-	err = row.Scan(
+	err = tx.QueryRowContext(ctx, insertQuotationQuery, now, quotation.TotalPrice, false, false).Scan(
 		&quotation.ID,
 		&quotation.CreatedAt,
 		&quotation.TotalPrice,
 	)
+
 	if err != nil {
 		return domain.Quotation{}, err
 	}
 
-	for _, quotationProducts := range quotation.Products {
-		if _, err = tx.ExecContext(ctx, insertProductQuery, quotation.ID, quotationProducts.ProductID, quotationProducts.Quantity); err != nil {
-			return domain.Quotation{}, err
-		}
-	}
-
-	if err = tx.Commit(); err != nil {
+	if err = insertQuoteProductsInBatch(ctx, tx, quotation.ID, quotation.Products); err != nil {
 		return domain.Quotation{}, err
 	}
 
@@ -65,36 +81,40 @@ func (r *writeQuotationRepository) SaveQuotation(ctx context.Context, args domai
 }
 
 const updateQuotationQuery = `
-	UPDATE quotation
-	SET updated_at = $1, total_price = $2, is_purchased = $3, purchased_at = $4, is_delivered = $5, delivered_at = $6
-	WHERE id = $7;
+    UPDATE quotation
+    SET updated_at = $1, total_price = $2, is_purchased = $3, purchased_at = $4, is_delivered = $5, delivered_at = $6
+    WHERE id = $7;
 `
 
 const upsertQuoteProductQuery = `
-	INSERT INTO quote_product (quotation_id, product_id, quantity)
-	VALUES ($1, $2, $3)
-	ON CONFLICT (quotation_id, product_id)
-	DO UPDATE SET quantity = EXCLUDED.quantity;
-`
-
-const selectQuotationQuery = `
-	SELECT * FROM quotation WHERE id = $1;
-`
-
-const selectQuoteProductsQuery = `
-	SELECT * FROM quote_product WHERE quotation_id = $1;
+    INSERT INTO quote_product (quotation_id, product_id, quantity)
+    SELECT $1, $2, $3
+    WHERE NOT EXISTS (
+        SELECT 1 FROM quote_product
+        WHERE quotation_id = $1 AND product_id = $2
+    )
+    ON CONFLICT (quotation_id, product_id)
+    DO UPDATE SET quantity = EXCLUDED.quantity;
 `
 
 func (r *writeQuotationRepository) UpdateQuotation(ctx context.Context, args domain.Quotation) (domain.Quotation, error) {
+	var err error
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return domain.Quotation{}, err
 	}
 
+	// Uso de defer para manejar el rollback de manera centralizada
+	defer func() {
+		if p := recover(); p != nil || err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
 	now := time.Now()
-	if args.UpdatedAt == nil {
-		args.UpdatedAt = &now
-	}
+	args.UpdatedAt = &now // Actualizamos UpdatedAt directamente en args
 
 	_, err = tx.ExecContext(ctx, updateQuotationQuery,
 		args.UpdatedAt,
@@ -105,51 +125,19 @@ func (r *writeQuotationRepository) UpdateQuotation(ctx context.Context, args dom
 		args.DeliveredAt,
 		args.ID)
 	if err != nil {
-		tx.Rollback()
 		return domain.Quotation{}, err
 	}
 
-	for _, product := range args.Products {
+	// Actualizamos los productos asociados
+	for i, product := range args.Products {
 		_, err = tx.ExecContext(ctx, upsertQuoteProductQuery, args.ID, product.ProductID, product.Quantity)
 		if err != nil {
-			tx.Rollback()
 			return domain.Quotation{}, err
 		}
+		args.Products[i] = product
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return domain.Quotation{}, err
-	}
-
-	row := r.db.QueryRowContext(ctx, selectQuotationQuery, args.ID)
-	quotation := domain.Quotation{}
-	err = row.Scan(&quotation.ID, &quotation.CreatedAt, &quotation.UpdatedAt, &quotation.TotalPrice, &quotation.IsPurchased, &quotation.PurchasedAt, &quotation.IsDelivered, &quotation.DeliveredAt)
-	if err != nil {
-		return domain.Quotation{}, err
-	}
-
-	rows, err := r.db.QueryContext(ctx, selectQuoteProductsQuery, args.ID)
-	if err != nil {
-		return domain.Quotation{}, fmt.Errorf("error querying quote products: %w", err)
-	}
-	defer rows.Close()
-
-	quotation.Products = []domain.QuoteProduct{}
-	for rows.Next() {
-		product := domain.QuoteProduct{}
-		err = rows.Scan(&product.ID, &product.QuotationID, &product.ProductID, &product.Quantity)
-		if err != nil {
-			return domain.Quotation{}, fmt.Errorf("error scanning quote product: %w", err)
-		}
-		quotation.Products = append(quotation.Products, product)
-	}
-
-	if err = rows.Err(); err != nil {
-		return domain.Quotation{}, fmt.Errorf("error after iterating quote products: %w", err)
-	}
-
-	return quotation, nil
+	return args, nil
 }
 
 const deleteQuotationQuery = `
@@ -158,17 +146,19 @@ const deleteQuotationQuery = `
 `
 
 func (r *writeQuotationRepository) DeleteQuotation(ctx context.Context, id int) error {
-	row := r.db.QueryRowContext(ctx, selectQuotationQuery, id)
-	if err := row.Scan(&id); err != nil {
-		if err == sql.ErrNoRows {
-			return fmt.Errorf("quotation with ID %d does not exist", id)
-		}
-		return fmt.Errorf("error checking existence of quotation: %w", err)
-	}
-
-	_, err := r.db.ExecContext(ctx, deleteQuotationQuery, id)
+	result, err := r.db.ExecContext(ctx, deleteQuotationQuery, id)
 	if err != nil {
 		return fmt.Errorf("error deleting quotation: %w", err)
+	}
+
+	// Verifica si algún registro fue afectado
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("error checking affected rows: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("quotation with ID %d does not exist", id)
 	}
 
 	return nil

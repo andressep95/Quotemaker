@@ -62,7 +62,7 @@ const listProductsByCategoryQuery = `
     `
 
 // ListProductByCategory implements domain.ProductRepository.
-func (r *readProductRepository) ListProductByCategory(ctx context.Context, categoryID int) ([]domain.Product, error) {
+func (r *readProductRepository) ListProductByCategory(ctx context.Context, categoryID string) ([]domain.Product, error) {
 	var products []domain.Product
 	rows, err := r.db.QueryContext(ctx, listProductsByCategoryQuery, categoryID)
 	if err != nil {
@@ -139,7 +139,7 @@ const getProductByIDQuery = `
 		WHERE id = $1;
 	`
 
-func (r *readProductRepository) GetProductByID(ctx context.Context, id int) (*domain.Product, error) {
+func (r *readProductRepository) GetProductByID(ctx context.Context, id string) (*domain.Product, error) {
 	rows := r.db.QueryRowContext(ctx, getProductByIDQuery, id)
 	var product domain.Product
 
@@ -155,9 +155,9 @@ func (r *readProductRepository) GetProductByID(ctx context.Context, id int) (*do
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("producto con ID %d no encontrado", id)
+			return nil, fmt.Errorf("producto con ID %s no encontrado", id)
 		}
-		return nil, fmt.Errorf("error al recuperar el producto con ID %d: %w", id, err)
+		return nil, fmt.Errorf("error al recuperar el producto con ID %s: %w", id, err)
 	}
 	return &product, err
 }

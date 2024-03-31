@@ -29,15 +29,15 @@ func (s *ReadProductService) ListProductByCategory(ctx context.Context, category
 		return nil, fmt.Errorf("error al buscar la categoria: %v", err)
 	}
 
-	if category.ID < 1 {
+	if category.ID == "" {
 		return nil, fmt.Errorf("no se encontró la categoría con el nombre: %s", categoryName)
 	}
 	return s.readProductRepo.ListProductByCategory(ctx, category.ID)
 }
 
-func (s *ReadProductService) GetProductByID(ctx context.Context, productID int) (*Product, error) {
+func (s *ReadProductService) GetProductByID(ctx context.Context, productID string) (*Product, error) {
 	// Validar que el ID del producto sea válido.
-	if productID <= 0 {
+	if productID == "" {
 		return &Product{}, fmt.Errorf("el ID del producto debe ser mayor que cero")
 	}
 
@@ -45,7 +45,7 @@ func (s *ReadProductService) GetProductByID(ctx context.Context, productID int) 
 	product, err := s.readProductRepo.GetProductByID(ctx, productID)
 	if err != nil {
 		// Manejar cualquier error que pueda surgir durante la obtención del producto.
-		return &Product{}, fmt.Errorf("error al obtener el producto por ID %d: %w", productID, err)
+		return &Product{}, fmt.Errorf("error al obtener el producto por ID %s: %w", productID, err)
 	}
 
 	// Devolver el producto obtenido y ningún error.

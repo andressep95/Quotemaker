@@ -5,7 +5,7 @@ import (
 )
 
 type Quotation struct {
-	ID          int        `db:"id"`
+	ID          string     `db:"id"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   *time.Time `db:"updated_at"`
 	TotalPrice  float64    `db:"total_price"`
@@ -17,8 +17,8 @@ type Quotation struct {
 }
 
 type QuoteProduct struct {
-	ID          int `db:"id"`
-	QuotationID int `db:"quotation_id"`
-	ProductID   int `db:"product_id"`
-	Quantity    int `db:"quantity"`
+	ID          string `db:"id"`
+	QuotationID string `db:"quotation_id"`
+	ProductID   string `db:"product_id"`
+	Quantity    int    `db:"quantity"`
 }

@@ -1,6 +1,6 @@
 package domain
 
 type Category struct {
-	ID           int    `db:"id"`
+	ID           string `db:"id"`
 	CategoryName string `db:"category_name"`
 }

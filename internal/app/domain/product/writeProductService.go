@@ -37,7 +37,7 @@ func (s *WriteProductService) CreateProduct(ctx context.Context, product Product
 	if product.Code == "" {
 		return nil, errors.New("el código del producto no puede estar vacío")
 	}
-	if product.CategoryID < 1 {
+	if product.CategoryID == "" {
 		category, err := s.readCategoryRepo.GetCategoryByName(ctx, "No Asignada")
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
@@ -78,7 +78,7 @@ func (s *WriteProductService) CreateProduct(ctx context.Context, product Product
 
 func (s *WriteProductService) UpdateProduct(ctx context.Context, product Product) (*Product, error) {
 
-	if product.ID <= 0 {
+	if product.ID == "" {
 		return nil, errors.New("el ID del producto debe ser mayor que cero")
 	}
 	if product.Description == "" {
@@ -98,6 +98,6 @@ func (s *WriteProductService) UpdateProduct(ctx context.Context, product Product
 	return &updatedProduct, nil
 }
 
-func (s *WriteProductService) DeleteProduct(ctx context.Context, productID int) error {
+func (s *WriteProductService) DeleteProduct(ctx context.Context, productID string) error {
 	return s.writeProductRepo.DeleteProduct(ctx, productID)
 }

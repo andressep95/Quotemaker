@@ -85,7 +85,7 @@ DELETE FROM product
 WHERE id = $1;
 `
 
-func (r *writeProductRepository) DeleteProduct(ctx context.Context, id int) error {
+func (r *writeProductRepository) DeleteProduct(ctx context.Context, id string) error {
 	_, err := r.db.ExecContext(ctx, deleteProductQuery, id)
 	return err
 }
