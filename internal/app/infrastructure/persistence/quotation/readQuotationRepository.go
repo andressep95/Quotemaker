@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	domain "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
+	domainP "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	domainQ "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
 )
 
 type readQuotationRepository struct {
@@ -13,90 +14,84 @@ type readQuotationRepository struct {
 }
 
 const getQuotationByIDQuery = `
-	SELECT id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
-	FROM quotation
-	WHERE id = $1;
+SELECT
+    q.id, q.created_at, q.updated_at, q.total_price, q.is_purchased, q.purchased_at, q.is_delivered, q.delivered_at,
+    p.id AS product_id, p.description, p.category_id, p.length, p.price, p.weight, p.code, p.is_available,
+    qp.quantity
+	FROM quotation q
+	LEFT JOIN quote_product qp ON q.id = qp.quotation_id
+	LEFT JOIN product p ON p.id = qp.product_id
+	WHERE q.id = $1;
 `
 
-const getProductsForQuotationQuery = `
-	SELECT 
-	p.id, 
-	p.name, 
-	p.category_id, 
-	p.length, 
-	p.price, 
-	p.weight, 
-	p.code, 
-	p.is_available,
-	qp.quantity
-	FROM product p
-	JOIN quote_product qp ON p.id = qp.product_id
-	WHERE qp.quotation_id = $1;
-`
-
-func (r *readQuotationRepository) GetQuotationByID(ctx context.Context, id string) (*domain.Quotation, error) {
-	row := r.db.QueryRowContext(ctx, getQuotationByIDQuery, id)
-	var quotation domain.Quotation
-
-	err := row.Scan(
-		&quotation.ID,
-		&quotation.CreatedAt,
-		&quotation.UpdatedAt,
-		&quotation.TotalPrice,
-		&quotation.IsPurchased,
-		&quotation.PurchasedAt,
-		&quotation.IsDelivered,
-		&quotation.DeliveredAt,
-	)
+func (r *readQuotationRepository) GetQuotationByID(ctx context.Context, id string) (*domainQ.Quotation, error) {
+	rows, err := r.db.QueryContext(ctx, getQuotationByIDQuery, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("quotation with ID %s does not exist", id)
-		}
-		return nil, fmt.Errorf("error querying quotation: %w", err)
-	}
-
-	rows, err := r.db.QueryContext(ctx, getProductsForQuotationQuery, quotation.ID)
-	if err != nil {
-		return nil, fmt.Errorf("error querying quote products: %w", err)
+		return nil, fmt.Errorf("error querying combined quotation data: %w", err)
 	}
 	defer rows.Close()
 
-	var products []domain.QuoteProduct
+	var quotation *domainQ.Quotation
+	products := make(map[string]domainP.Product)
 
 	for rows.Next() {
-		var qp domain.QuoteProduct
-		if err := rows.Scan(&qp.ID, &qp.QuotationID, &qp.ProductID, &qp.Quantity); err != nil {
-			return nil, fmt.Errorf("error scanning quote product: %w", err)
+		var q domainQ.Quotation
+		var p domainP.Product
+		var quantity int
+
+		err := rows.Scan(
+			&q.ID, &q.CreatedAt, &q.UpdatedAt, &q.TotalPrice, &q.IsPurchased, &q.PurchasedAt, &q.IsDelivered, &q.DeliveredAt,
+			&p.ID, &p.Description, &p.CategoryID, &p.Length, &p.Price, &p.Weight, &p.Code, &p.IsAvailable,
+			&quantity,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error scanning combined quotation data: %w", err)
 		}
-		products = append(products, qp)
+
+		// Si es la primera vez que vemos esta cotización, inicialízala.
+		if quotation == nil {
+			quotation = &q
+			quotation.Products = []domainQ.QuoteProduct{} // Inicializa el slice de productos.
+		}
+
+		// Añade el producto a la cotización si aún no se ha añadido.
+		if _, exists := products[p.ID]; !exists && p.ID != "" {
+			products[p.ID] = p // Marcamos el producto como visto.
+			quotation.Products = append(quotation.Products, domainQ.QuoteProduct{
+				ProductID: p.ID,
+				Quantity:  quantity,
+			})
+		}
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("error after iterating quote products: %w", err)
+		return nil, fmt.Errorf("error after iterating combined quotation data: %w", err)
 	}
 
-	quotation.Products = products
+	if quotation == nil {
+		return nil, fmt.Errorf("quotation with ID %s does not exist", id)
+	}
 
-	return &quotation, nil
+	return quotation, nil
 }
 
 const listQuotationsQuery = `
-SELECT id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
-FROM quotation
-ORDER BY created_at DESC
-LIMIT $1 OFFSET $2;
-`
+		SELECT id, created_at, updated_at, total_price, is_purchased, purchased_at, is_delivered, delivered_at
+		FROM quotation
+		ORDER BY created_at DESC
+		LIMIT $1 OFFSET $2;
+	`
 
-func (r *readQuotationRepository) ListQuotations(ctx context.Context, limit int, offset int) ([]domain.Quotation, error) {
+func (r *readQuotationRepository) ListQuotations(ctx context.Context, limit int, offset int) ([]domainQ.Quotation, error) {
 	rows, err := r.db.QueryContext(ctx, listQuotationsQuery, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("error querying quotations: %w", err)
 	}
 	defer rows.Close()
 
-	var quotations []domain.Quotation
+	var quotations []domainQ.Quotation
 	for rows.Next() {
-		var q domain.Quotation
+		var q domainQ.Quotation
 		err := rows.Scan(
 			&q.ID,
 			&q.CreatedAt,
@@ -120,7 +115,7 @@ func (r *readQuotationRepository) ListQuotations(ctx context.Context, limit int,
 	return quotations, nil
 }
 
-func NewReadQuotationRepository(db *sql.DB) domain.ReadQuotationRepository {
+func NewReadQuotationRepository(db *sql.DB) domainQ.ReadQuotationRepository {
 	return &readQuotationRepository{
 		db: db,
 	}

@@ -9,6 +9,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestGetProductByID(t *testing.T) {
+	db := utiltest.SetupTestDB(t)
+	ctx := context.Background()
+	readRepo := NewReadProductRepository(db)
+	newProduct := utiltest.CreateRandomProduct(t, db)
+
+	product, err := readRepo.GetProductByID(ctx, newProduct.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, product)
+}
+
 func TestListProducts(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
