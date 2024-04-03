@@ -24,7 +24,7 @@ import (
 
 func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Repository´s
-	//readQuotationRepo := quotationRepo.NewReadQuotationRepository(db)
+	readQuotationRepo := quotationRepo.NewReadQuotationRepository(db)
 	writeQuotationRepo := quotationRepo.NewWriteQuotationRepository(db)
 	readProductRepo := persistence.NewReadProductRepository(db)
 	writeProductRepo := persistence.NewWriteProductRepository(db)
@@ -32,6 +32,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeCategoryRepo := categoryRepo.NewWriteCategoryRepository(db)
 
 	// Services´s
+	readQuotationService := quotationServ.NewReadQuotationService(readQuotationRepo)
 	writeQuotationService := quotationServ.NewWriteQuotationService(writeQuotationRepo, writeProductRepo)
 	readProductService := domain.NewReadProductService(readProductRepo, readCategoryRepo)
 	writeProductService := domain.NewWriteProductService(writeProductRepo, writeCategoryRepo, readCategoryRepo)
@@ -39,6 +40,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeCategoryService := categoryServ.NewWriteCategoryService(writeCategoryRepo)
 
 	// Usecase´s
+	readQuotationUseCase := appQuotation.NewReadQuotationuseCase(readQuotationService)
 	writeQuotationUseCase := appQuotation.NewWriteQuotationUseCase(writeQuotationService)
 	readProductUseCase := application.NewReadProductUseCase(readProductService)
 	writeProductUseCase := application.NewWriteProductUseCase(writeProductService, readProductService)
@@ -46,6 +48,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeCategoryUseCase := appCategory.NewWriteCategoryUseCase(writeCategoryService)
 
 	// Handler´s
+	readQuotationHandler := quotationController.NewReadQuotationUseCase(readQuotationUseCase)
 	writeQuotationHandler := quotationController.NewWriteQuotationHandler(writeQuotationUseCase)
 	readProductHandler := controller.NewReadProductHandler(readProductUseCase)
 	writeProductHandler := controller.NewWriteProductHandler(writeProductUseCase)
@@ -53,6 +56,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeCategoryHandler := catController.NewWriteCategoryHandler(writeCategoryUseCase)
 
 	// Routes
+	readQuotationHandler.ReadQuotationRouter(r)
 	writeQuotationHandler.WriteQuotationRouter(r)
 	readProductHandler.ReadProductRouter(r)
 	writeProductHandler.WriteProductRouter(r)
