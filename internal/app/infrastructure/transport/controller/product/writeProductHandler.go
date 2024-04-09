@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/product"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +25,7 @@ func NewWriteProductHandler(writeProductUseCase *application.WriteProductUseCase
 }
 
 func (w *writeProductHandler) CreateProductHandler(c *gin.Context) {
-	var req application.CreateProductRequest
+	var req dto.CreateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -40,7 +41,7 @@ func (w *writeProductHandler) CreateProductHandler(c *gin.Context) {
 }
 
 func (w *writeProductHandler) UpdateProductHandler(c *gin.Context) {
-	var req application.UpdateProductRequest
+	var req dto.UpdateProductRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -58,7 +59,7 @@ func (w *writeProductHandler) UpdateProductHandler(c *gin.Context) {
 func (w *writeProductHandler) DeleteProductHandler(c *gin.Context) {
 	id := c.Param("id")
 
-	request := application.DeleteProductRequest{
+	request := dto.DeleteProductRequest{
 		ID: id,
 	}
 

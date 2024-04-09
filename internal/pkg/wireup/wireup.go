@@ -18,11 +18,15 @@ import (
 	catController "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/category"
 	controller "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/product"
 	quotationController "github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/controller/quotation"
+	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupAppControllers(r *gin.Engine, db *sql.DB) {
+	// Middleware
+	r.Use(middleware.CORSMiddleware())
+
 	// Repository´s
 	readQuotationRepo := quotationRepo.NewReadQuotationRepository(db)
 	writeQuotationRepo := quotationRepo.NewWriteQuotationRepository(db)
@@ -62,4 +66,5 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeProductHandler.WriteProductRouter(r)
 	readCategoryHandler.CategoryRouter(r)
 	writeCategoryHandler.WriteCategoryRouter(r)
+
 }

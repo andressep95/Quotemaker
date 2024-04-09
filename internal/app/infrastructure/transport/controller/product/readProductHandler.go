@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/product"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/product"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +39,7 @@ func (r *readProductHandler) ListProductsByNameHandler(c *gin.Context) {
 		return
 	}
 
-	request := application.ListProductsRequest{
+	request := dto.ListProductsRequest{
 		Name:   name,
 		Limit:  limit,
 		Offset: offset,
@@ -56,7 +57,7 @@ func (r *readProductHandler) ListProductsByNameHandler(c *gin.Context) {
 func (r *readProductHandler) ListProductsByCategoryHandler(c *gin.Context) {
 	categoryName := c.Param("categoryName")
 
-	request := application.ListProductByCategoryRequest{
+	request := dto.ListProductByCategoryRequest{
 		CategoryName: categoryName,
 	}
 
@@ -73,7 +74,7 @@ func (r *readProductHandler) GetProductByIDHandler(c *gin.Context) {
 	id := c.Param("id")
 	// No conversion needed for UUID.
 
-	request := application.GetProductByIDRequest{
+	request := dto.GetProductByIDRequest{
 		ID: id,
 	}
 

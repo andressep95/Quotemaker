@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/category"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/product"
 )
 
 type ReadProductService struct {
@@ -19,11 +20,11 @@ func NewReadProductService(readProductRepo ReadProductRepository, readCategoryRe
 	}
 }
 
-func (s *ReadProductService) ListProductsByName(ctx context.Context, limit, offset int, name string) ([]Product, error) {
+func (s *ReadProductService) ListProductsByName(ctx context.Context, limit, offset int, name string) ([]dto.ProductDTO, error) {
 	return s.readProductRepo.ListProductsByName(ctx, limit, offset, name)
 }
 
-func (s *ReadProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]Product, error) {
+func (s *ReadProductService) ListProductByCategory(ctx context.Context, categoryName string) ([]dto.ProductDTO, error) {
 	category, err := s.readCategoryRepo.GetCategoryByName(ctx, categoryName)
 	if err != nil {
 		return nil, fmt.Errorf("error al buscar la categoria: %v", err)
@@ -32,20 +33,20 @@ func (s *ReadProductService) ListProductByCategory(ctx context.Context, category
 	if category.ID == "" {
 		return nil, fmt.Errorf("no se encontró la categoría con el nombre: %s", categoryName)
 	}
-	return s.readProductRepo.ListProductByCategory(ctx, category.ID)
+	return s.readProductRepo.ListProductByCategory(ctx, category.CategoryName)
 }
 
-func (s *ReadProductService) GetProductByID(ctx context.Context, productID string) (*Product, error) {
+func (s *ReadProductService) GetProductByID(ctx context.Context, productID string) (*dto.ProductDTO, error) {
 	// Validar que el ID del producto sea válido.
 	if productID == "" {
-		return &Product{}, fmt.Errorf("el ID del producto debe ser mayor que cero")
+		return &dto.ProductDTO{}, fmt.Errorf("el ID del producto debe ser mayor que cero")
 	}
 
 	// Llamar al repositorio para obtener el producto por su ID.
 	product, err := s.readProductRepo.GetProductByID(ctx, productID)
 	if err != nil {
 		// Manejar cualquier error que pueda surgir durante la obtención del producto.
-		return &Product{}, fmt.Errorf("error al obtener el producto por ID %s: %w", productID, err)
+		return &dto.ProductDTO{}, fmt.Errorf("error al obtener el producto por ID %s: %w", productID, err)
 	}
 
 	// Devolver el producto obtenido y ningún error.

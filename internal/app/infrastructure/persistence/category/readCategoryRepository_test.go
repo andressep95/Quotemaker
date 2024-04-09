@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/Andressep/QuoteMaker/internal/pkg/utiltest"
@@ -29,8 +28,7 @@ func TestListCategorys(t *testing.T) {
 
 	for i := 0; i < 5; i++ {
 		newCategory := utiltest.CreateRandomCategory(t, db)
-
-		fmt.Println(i, newCategory)
+		require.NotEmpty(t, newCategory)
 	}
 
 	categorys, err := readRepo.ListCategorys(ctx, 5, 0)

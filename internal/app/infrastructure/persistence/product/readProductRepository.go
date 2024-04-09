@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/product"
 )
 
 type readProductRepository struct {
@@ -14,16 +15,17 @@ type readProductRepository struct {
 }
 
 const listProductsByNameQuery = `
-		SELECT id, category_id, code, description, ROUND(price::numeric, 2), ROUND(weight::numeric, 2), ROUND(length::numeric, 2), is_available
-		FROM product
-        WHERE lower(description) LIKE lower($1)
-        ORDER BY id
-        LIMIT $2 OFFSET $3;
-    `
+	SELECT p.id, p.code, p.description, ROUND(p.price::numeric, 2), ROUND(p.weight::numeric, 2), ROUND(p.length::numeric, 2), p.is_available, c.category_name
+	FROM product p
+	INNER JOIN category c ON p.category_id = c.id
+	WHERE lower(p.description) LIKE lower($1)
+	ORDER BY p.id
+	LIMIT $2 OFFSET $3;
+	`
 
 // ListProductsByDescription implements domain.ProductRepository.
-func (r *readProductRepository) ListProductsByName(ctx context.Context, limit int, offset int, description string) ([]domain.Product, error) {
-	var products []domain.Product
+func (r *readProductRepository) ListProductsByName(ctx context.Context, limit int, offset int, description string) ([]dto.ProductDTO, error) {
+	var products []dto.ProductDTO
 	rows, err := r.db.QueryContext(ctx, listProductsByNameQuery, "%"+description+"%", limit, offset)
 	if err != nil {
 		return nil, err
@@ -31,16 +33,16 @@ func (r *readProductRepository) ListProductsByName(ctx context.Context, limit in
 	defer rows.Close()
 
 	for rows.Next() {
-		var product domain.Product
+		var product dto.ProductDTO
 		err := rows.Scan(
 			&product.ID,
-			&product.CategoryID,
 			&product.Code,
 			&product.Description,
 			&product.Price,
 			&product.Weight,
 			&product.Length,
 			&product.IsAvailable,
+			&product.CategoryName,
 		)
 		if err != nil {
 			return nil, err
@@ -55,32 +57,33 @@ func (r *readProductRepository) ListProductsByName(ctx context.Context, limit in
 }
 
 const listProductsByCategoryQuery = `
-		SELECT id, category_id, code, description, ROUND(price::numeric, 2), ROUND(weight::numeric, 2), ROUND(length::numeric, 2), is_available
-		FROM product
-        WHERE category_id = $1
-        ORDER BY name;
-    `
+	SELECT p.id, p.code, p.description, ROUND(p.price::numeric, 2), ROUND(p.weight::numeric, 2), ROUND(p.length::numeric, 2), p.is_available, c.category_name
+	FROM product p
+	INNER JOIN category c ON p.category_id = c.id
+	ORDER BY p.id
+	LIMIT $1 OFFSET $2;
+	`
 
 // ListProductByCategory implements domain.ProductRepository.
-func (r *readProductRepository) ListProductByCategory(ctx context.Context, categoryID string) ([]domain.Product, error) {
-	var products []domain.Product
-	rows, err := r.db.QueryContext(ctx, listProductsByCategoryQuery, categoryID)
+func (r *readProductRepository) ListProductByCategory(ctx context.Context, categoryName string) ([]dto.ProductDTO, error) {
+	var products []dto.ProductDTO
+	rows, err := r.db.QueryContext(ctx, listProductsByCategoryQuery, categoryName)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var product domain.Product
+		var product dto.ProductDTO
 		err := rows.Scan(
 			&product.ID,
-			&product.CategoryID,
 			&product.Code,
 			&product.Description,
 			&product.Price,
 			&product.Weight,
 			&product.Length,
 			&product.IsAvailable,
+			&product.CategoryName,
 		)
 		if err != nil {
 			return nil, err
@@ -95,31 +98,32 @@ func (r *readProductRepository) ListProductByCategory(ctx context.Context, categ
 }
 
 const listProductsQuery = `
-		SELECT id, category_id, code, description, ROUND(price::numeric, 2), ROUND(weight::numeric, 2), ROUND(length::numeric, 2), is_available
-		FROM product
-		ORDER BY id
-		LIMIT $1 OFFSET $2;
+	SELECT p.id, p.code, p.description, ROUND(p.price::numeric, 2), ROUND(p.weight::numeric, 2), ROUND(p.length::numeric, 2), p.is_available, c.category_name
+	FROM product p
+	INNER JOIN category c ON p.category_id = c.id
+	ORDER BY p.id
+	LIMIT $1 OFFSET $2;
 	`
 
-func (r *readProductRepository) ListProducts(ctx context.Context, limit, offset int) ([]domain.Product, error) {
+func (r *readProductRepository) ListProducts(ctx context.Context, limit, offset int) ([]dto.ProductDTO, error) {
 	rows, err := r.db.QueryContext(ctx, listProductsQuery, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var products []domain.Product
+	var products []dto.ProductDTO
 	for rows.Next() {
-		var product domain.Product
+		var product dto.ProductDTO
 		err := rows.Scan(
 			&product.ID,
-			&product.CategoryID,
 			&product.Code,
 			&product.Description,
 			&product.Price,
 			&product.Weight,
 			&product.Length,
 			&product.IsAvailable,
+			&product.CategoryName,
 		)
 		if err != nil {
 			return nil, err
@@ -134,24 +138,25 @@ func (r *readProductRepository) ListProducts(ctx context.Context, limit, offset 
 }
 
 const getProductByIDQuery = `
-		SELECT id, category_id, code, description, ROUND(price::numeric, 2), ROUND(weight::numeric, 2), ROUND(length::numeric, 2), is_available
-		FROM product
-		WHERE id = $1;
+	SELECT p.id, p.code, p.description, ROUND(p.price::numeric, 2), ROUND(p.weight::numeric, 2), ROUND(p.length::numeric, 2), p.is_available, c.category_name
+	FROM product p
+	INNER JOIN category c ON p.category_id = c.id
+	WHERE p.id = $1;
 	`
 
-func (r *readProductRepository) GetProductByID(ctx context.Context, id string) (*domain.Product, error) {
+func (r *readProductRepository) GetProductByID(ctx context.Context, id string) (*dto.ProductDTO, error) {
 	rows := r.db.QueryRowContext(ctx, getProductByIDQuery, id)
-	var product domain.Product
+	var product dto.ProductDTO
 
 	err := rows.Scan(
 		&product.ID,
-		&product.CategoryID,
 		&product.Code,
 		&product.Description,
 		&product.Price,
 		&product.Weight,
 		&product.Length,
 		&product.IsAvailable,
+		&product.CategoryName,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
