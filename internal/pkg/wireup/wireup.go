@@ -23,6 +23,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// SetupAppControllers configures the application controllers and sets up the routes for handling HTTP requests.
+// It takes in a *gin.Engine instance and a *sql.DB instance as parameters.
+// The function sets up the necessary middleware, repositories, services, use cases, and handlers for the application.
+// It then registers the routes for handling different types of requests, such as reading and writing quotations, products, and categories.
 func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	// Middleware
 	r.Use(middleware.CORSMiddleware())
@@ -45,7 +49,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 
 	// Usecase´s
 	readQuotationUseCase := appQuotation.NewReadQuotationuseCase(readQuotationService)
-	writeQuotationUseCase := appQuotation.NewWriteQuotationUseCase(writeQuotationService)
+	writeQuotationUseCase := appQuotation.NewWriteQuotationUseCase(writeQuotationService, readProductService)
 	readProductUseCase := application.NewReadProductUseCase(readProductService)
 	writeProductUseCase := application.NewWriteProductUseCase(writeProductService, readProductService)
 	readCategegoryUseCase := appCategory.NewReadCategoryUseCase(readCategoryService)
@@ -66,5 +70,4 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 	writeProductHandler.WriteProductRouter(r)
 	readCategoryHandler.CategoryRouter(r)
 	writeCategoryHandler.WriteCategoryRouter(r)
-
 }

@@ -4,30 +4,31 @@ import (
 	"context"
 	"net/http"
 
-	domain "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
+	domain "github.com/Andressep/QuoteMaker/internal/app/domain/product"
+	domainQ "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
 	dto "github.com/Andressep/QuoteMaker/internal/app/dto/quotation"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/response"
 )
 
-// RegisterQuotation maneja la lógica de negocio para registrar una nueva cotización
 func (w *WriteQuotationUseCase) RegisterQuotation(ctx context.Context, request dto.CreateQuotationRequest) (*response.Response, error) {
-	// Convierte los productos del DTO a entidades de dominio
-	var quoteProducts []domain.QuoteProduct
-	for _, p := range request.Products {
-		quoteProducts = append(quoteProducts, domain.QuoteProduct{
-			ProductID: p.Product.ID,
-			Quantity:  p.Quantity,
+	// Convertimos los detalles del producto de DTO a entidades de dominio
+	var quoteProducts []domainQ.QuoteProduct
+	for _, pd := range request.Products {
+		quoteProducts = append(quoteProducts, domainQ.QuoteProduct{
+			ProductID: pd.Product.ID, // Usamos el ID directamente, asumiendo que es válido y existe
+			Quantity:  pd.Quantity,
 		})
 	}
 
-	// Crea una entidad de cotización con los productos convertidos
-	quotation := domain.Quotation{
+	// Creamos la entidad de cotización para usarla en la lógica de negocio
+	quotation := domainQ.Quotation{
 		TotalPrice:  request.TotalPrice,
 		IsPurchased: request.IsPurchased,
+		IsDelivered: false, // Inicialmente, cuando se crea, no está entregada
 		Products:    quoteProducts,
 	}
 
-	// Llama al servicio de dominio para crear la cotización
+	// Llamada al servicio de dominio para crear la cotización
 	createdQuotation, err := w.writeQuotationService.CreateQuotation(ctx, quotation)
 	if err != nil {
 		return &response.Response{
@@ -35,23 +36,21 @@ func (w *WriteQuotationUseCase) RegisterQuotation(ctx context.Context, request d
 			StatusCode: http.StatusInternalServerError,
 			Message:    err.Error(),
 			ErrorCode:  "internal_server_error",
-			Errors: []response.ErrorDetail{
-				{Message: err.Error()},
-			},
+			Errors:     []response.ErrorDetail{{Message: err.Error()}},
 		}, nil
 	}
 
-	// Convierte los productos de la cotización creada a DTOs para la respuesta
+	// Preparamos los productos para la respuesta DTO
 	productsResponse := make([]dto.QuoteProductDetail, len(createdQuotation.Products))
 	for i, prod := range createdQuotation.Products {
-		productDTO, _ := w.writeQuotationService.GetProductDetails(ctx, prod.ProductID) // Asume una función en el servicio que devuelve detalles del producto
+		productDTO, _ := w.readProductService.GetProductByID(ctx, prod.ProductID) // Asume una función que devuelve detalles del producto
 		productsResponse[i] = dto.QuoteProductDetail{
-			Product:  productDTO,
+			Product:  *productDTO,
 			Quantity: prod.Quantity,
 		}
 	}
 
-	// Prepara la respuesta final utilizando DTOs
+	// Construimos la respuesta final usando DTO
 	return &response.Response{
 		Status:     "success",
 		StatusCode: http.StatusOK,
@@ -70,11 +69,13 @@ func (w *WriteQuotationUseCase) RegisterQuotation(ctx context.Context, request d
 }
 
 type WriteQuotationUseCase struct {
-	writeQuotationService *domain.WriteQuotationService
+	writeQuotationService *domainQ.WriteQuotationService
+	readProductService    *domain.ReadProductService
 }
 
-func NewWriteQuotationUseCase(writeQuotationService *domain.WriteQuotationService) *WriteQuotationUseCase {
+func NewWriteQuotationUseCase(writeQuotationService *domainQ.WriteQuotationService, readProductService *domain.ReadProductService) *WriteQuotationUseCase {
 	return &WriteQuotationUseCase{
 		writeQuotationService: writeQuotationService,
+		readProductService:    readProductService,
 	}
 }
