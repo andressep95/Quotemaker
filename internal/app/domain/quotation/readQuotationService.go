@@ -1,6 +1,10 @@
 package domain
 
-import "context"
+import (
+	"context"
+
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/quotation"
+)
 
 type ReadQuotationService struct {
 	readQuotationRepo ReadQuotationRepository
@@ -12,6 +16,6 @@ func NewReadQuotationService(readQuotationRepo ReadQuotationRepository) *ReadQuo
 	}
 }
 
-func (r *ReadQuotationService) ListQuotations(ctx context.Context, limit, offset int) ([]Quotation, error) {
+func (r *ReadQuotationService) ListQuotations(ctx context.Context, limit, offset int) ([]dto.QuotationDTO, error) {
 	return r.readQuotationRepo.ListQuotations(ctx, limit, offset)
 }

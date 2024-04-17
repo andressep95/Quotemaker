@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/quotation"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/quotation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +28,7 @@ func NewWriteQuotationHandler(writeQuotationUseCase *application.WriteQuotationU
 
 // CreateQuotationHandler maneja la creación de cotizaciones
 func (w *writeQuotationHandler) CreateQuotationHandler(c *gin.Context) {
-	var req application.CreateQuotationRequest
+	var req dto.CreateQuotationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

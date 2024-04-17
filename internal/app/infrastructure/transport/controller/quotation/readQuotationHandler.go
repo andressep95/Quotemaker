@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/quotation"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/quotation"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +27,7 @@ func (r *readQuotationHandler) ListQuotationsHandler(c *gin.Context) {
 	}
 
 	// Crea el request de listado de cotizaciones.
-	request := application.ListQuotationsRequest{
+	request := dto.ListQuotationsRequest{
 		Limit:  limit,
 		Offset: offset,
 	}

@@ -3,31 +3,13 @@ package application
 import (
 	"context"
 	"net/http"
-	"time"
 
 	domain "github.com/Andressep/QuoteMaker/internal/app/domain/quotation"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/quotation"
 	"github.com/Andressep/QuoteMaker/internal/app/infrastructure/transport/response"
 )
 
-type ListQuotationsRequest struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
-type ListQuotationsResponse struct {
-	Quotations []QuotationDTO `json:"quotations"`
-}
-
-type QuotationDTO struct {
-	ID          string               `json:"id"`
-	CreatedAt   time.Time            `json:"created_at"`
-	TotalPrice  float64              `json:"total_price"`
-	IsPurchased bool                 `json:"is_purchased"`
-	IsDelivered bool                 `json:"is_delivered"`
-	Products    []QuoteProductDetail `json:"products"`
-}
-
-func (r *ReadQuotationUseCase) ListQuotations(ctx context.Context, request ListQuotationsRequest) (*response.Response, error) {
+func (r *ReadQuotationUseCase) ListQuotations(ctx context.Context, request dto.ListQuotationsRequest) (*response.Response, error) {
 	quotations, err := r.readQuotationService.ListQuotations(ctx, request.Limit, request.Offset)
 	if err != nil {
 		return &response.Response{
@@ -39,17 +21,17 @@ func (r *ReadQuotationUseCase) ListQuotations(ctx context.Context, request ListQ
 		}, nil
 	}
 
-	var quotationsResponse []QuotationDTO
+	var quotationsResponse []dto.QuotationDTO
 	for _, q := range quotations {
-		productsResponse := make([]QuoteProductDetail, len(q.Products))
+		productsResponse := make([]dto.QuoteProductDetail, len(q.Products))
 		for i, prod := range q.Products {
-			productsResponse[i] = QuoteProductDetail{
-				ProductID: prod.ProductID,
-				Quantity:  prod.Quantity,
+			productsResponse[i] = dto.QuoteProductDetail{
+				Product:  prod.Product,
+				Quantity: prod.Quantity,
 			}
 		}
 
-		quotationsResponse = append(quotationsResponse, QuotationDTO{
+		quotationsResponse = append(quotationsResponse, dto.QuotationDTO{
 			ID:          q.ID,
 			CreatedAt:   q.CreatedAt,
 			TotalPrice:  q.TotalPrice,
@@ -64,7 +46,7 @@ func (r *ReadQuotationUseCase) ListQuotations(ctx context.Context, request ListQ
 		StatusCode: http.StatusOK,
 		Message:    "Quotations listed successfully",
 		Data: response.ResponseData{
-			Result: ListQuotationsResponse{
+			Result: dto.ListQuotationsResponse{
 				Quotations: quotationsResponse,
 			},
 		},
