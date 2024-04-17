@@ -41,7 +41,7 @@ func SetupAppControllers(r *gin.Engine, db *sql.DB) {
 
 	// Services´s
 	readQuotationService := quotationServ.NewReadQuotationService(readQuotationRepo)
-	writeQuotationService := quotationServ.NewWriteQuotationService(writeQuotationRepo, writeProductRepo)
+	writeQuotationService := quotationServ.NewWriteQuotationService(writeQuotationRepo, writeProductRepo, readProductRepo)
 	readProductService := domain.NewReadProductService(readProductRepo, readCategoryRepo)
 	writeProductService := domain.NewWriteProductService(writeProductRepo, writeCategoryRepo, readCategoryRepo)
 	readCategoryService := categoryServ.NewReadCategoryService(readCategoryRepo)

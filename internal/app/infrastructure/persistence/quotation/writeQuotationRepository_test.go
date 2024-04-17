@@ -12,8 +12,6 @@ import (
 func TestSaveQuotation(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 
-	// Omitido: Código para limpiar la tabla de cotizaciones antes de la prueba.
-
 	repo := NewWriteQuotationRepository(db)
 	quotation := utiltest.CreateRandomQuotation(t, db)
 
