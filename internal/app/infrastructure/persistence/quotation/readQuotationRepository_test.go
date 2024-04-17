@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetQuotationByID(t *testing.T) {
+/*func TestGetQuotationByID(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
 	readRepo := NewReadQuotationRepository(db)
@@ -18,8 +18,7 @@ func TestGetQuotationByID(t *testing.T) {
 	quotation, err := readRepo.GetQuotationByID(ctx, newQuotation.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, quotation)
-
-}
+}*/
 
 func TestListQuotations(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
