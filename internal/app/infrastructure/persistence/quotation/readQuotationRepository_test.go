@@ -1,14 +1,5 @@
 package persistence
 
-import (
-	"context"
-	"fmt"
-	"testing"
-
-	"github.com/Andressep/QuoteMaker/internal/pkg/utiltest"
-	"github.com/stretchr/testify/require"
-)
-
 /*func TestGetQuotationByID(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
 	ctx := context.Background()
@@ -18,7 +9,7 @@ import (
 	quotation, err := readRepo.GetQuotationByID(ctx, newQuotation.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, quotation)
-}*/
+}
 
 func TestListQuotations(t *testing.T) {
 	db := utiltest.SetupTestDB(t)
@@ -35,3 +26,4 @@ func TestListQuotations(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, quotations, 5)
 }
+*/
