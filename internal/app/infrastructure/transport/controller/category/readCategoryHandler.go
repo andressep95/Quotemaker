@@ -66,3 +66,20 @@ func (rc *ReadCategoryHandler) GetCategoryByIdHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+// SearchCategoryByNameHandler maneja las solicitudes GET para buscar una categoría por su nombre.
+func (rc *ReadCategoryHandler) SearchCategoryByNameHandler(c *gin.Context) {
+	// Obtener el nombre de la categoría de los parámetros de la solicitud
+	categoryName := c.Query("name")
+	// Crear la solicitud para buscar la categoría por su nombre
+	request := dto.GetCategoryByNameRequest{
+		Name: categoryName,
+	}
+	// Llamar al caso de uso para buscar la categoría por su nombre
+	response, err := rc.ReadCategoryUseCase.SearchCategoryByName(c.Request.Context(), &request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}
