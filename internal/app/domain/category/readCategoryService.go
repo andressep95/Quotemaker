@@ -37,7 +37,3 @@ func NewReadCategoryService(readCategoryRepository ReadCategoryRepository) *Read
 		readCategoryService: readCategoryRepository,
 	}
 }
-
-func (s *ReadCategoryService) ListCategorys(ctx context.Context, limit, offset int) ([]Category, error) {
-	return s.readCategoryService.ListCategorys(ctx, limit, offset)
-}
