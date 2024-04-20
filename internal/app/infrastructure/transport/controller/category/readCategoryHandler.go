@@ -5,12 +5,14 @@ import (
 	"strconv"
 
 	application "github.com/Andressep/QuoteMaker/internal/app/application/category"
+	dto "github.com/Andressep/QuoteMaker/internal/app/dto/category"
 	"github.com/gin-gonic/gin"
 )
 
 // CategoryRouter registra las rutas para categorías en Gin.
 func (rc *ReadCategoryHandler) CategoryRouter(r *gin.Engine) {
 	r.GET("/category", rc.ListCategoryHandler)
+	r.GET("/category/:id", rc.GetCategoryByIdHandler)
 }
 
 type ReadCategoryHandler struct {
@@ -31,12 +33,32 @@ func (rc *ReadCategoryHandler) ListCategoryHandler(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 
-	request := application.ListCategorysRequest{
+	request := dto.ListCategorysRequest{
 		Limit:  limit,
 		Offset: offset,
 	}
 
 	response, err := rc.ReadCategoryUseCase.ListCategorys(c.Request.Context(), &request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// GetCategoryByIdHandler maneja las solicitudes GET para obtener una categoría por su ID.
+func (rc *ReadCategoryHandler) GetCategoryByIdHandler(c *gin.Context) {
+	// Obtener el ID de la categoría de los parámetros de la solicitud
+	categoryID := c.Param("id")
+
+	// Crear la solicitud para obtener la categoría por su ID
+	request := dto.GetCategoryRequest{
+		ID: categoryID,
+	}
+
+	// Llamar al caso de uso para obtener la categoría por su ID
+	response, err := rc.ReadCategoryUseCase.GetCategory(c.Request.Context(), &request)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
