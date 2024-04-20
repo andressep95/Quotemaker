@@ -13,6 +13,7 @@ import (
 func (rc *ReadCategoryHandler) CategoryRouter(r *gin.Engine) {
 	r.GET("/category", rc.ListCategoryHandler)
 	r.GET("/category/:id", rc.GetCategoryByIdHandler)
+	r.GET("/category/search", rc.SearchCategoryByNameHandler)
 }
 
 type ReadCategoryHandler struct {
