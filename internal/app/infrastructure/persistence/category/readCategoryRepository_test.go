@@ -26,18 +26,20 @@ func TestListCategorys(t *testing.T) {
 	ctx := context.Background()
 	readRepo := NewReadCategoryRepository(db)
 
-	for i := 0; i < 5; i++ {
-		newCategory := utiltest.CreateRandomCategory(t, db)
-		require.NotEmpty(t, newCategory)
+	// Create some categories
+	for i := 0; i < 10; i++ {
+		utiltest.CreateRandomCategory(t, db)
 	}
 
-	categorys, err := readRepo.ListCategorys(ctx, 5, 0)
+	// List categories with limit and offset
+	categories, err := readRepo.ListCategorys(ctx, 5, 0)
 	require.NoError(t, err)
+	require.Len(t, categories, 5)
 
-	for _, category := range categorys {
-		require.NotEmpty(t, category)
-		require.Len(t, categorys, 5)
-	}
+	// List categories with a larger offset
+	categories, err = readRepo.ListCategorys(ctx, 5, 10)
+	require.NoError(t, err)
+	require.Len(t, categories, 5)
 }
 
 func TestGetCategoryByName(t *testing.T) {

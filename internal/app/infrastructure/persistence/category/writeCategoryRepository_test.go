@@ -20,17 +20,17 @@ func TestUpdateCategory(t *testing.T) {
 	writeRepo := NewWriteCategoryRepository(db)
 	category := utiltest.CreateRandomCategory(t, db)
 
-	// Update catefory name
+	// Update category name
 	category.CategoryName = "New Category Name"
 	updatedCategory, err := writeRepo.UpdateCategory(ctx, category)
-	if err != nil {
-		return
-	}
-	require.NoError(t, err)
-
-	// Verify
 	require.NoError(t, err)
 	require.Equal(t, category.CategoryName, updatedCategory.CategoryName)
+
+	// Try to update a category that doesn't exist
+	nonExistentCategory := category
+	nonExistentCategory.ID = "non-existent-id"
+	_, err = writeRepo.UpdateCategory(ctx, nonExistentCategory)
+	require.Error(t, err)
 }
 
 func TestDeleteCategory(t *testing.T) {
